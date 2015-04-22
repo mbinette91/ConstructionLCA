@@ -28,7 +28,16 @@
 }
 
 nav#tabs .progress {
+    position: absolute;
+    bottom: 3px;
+    left: 0;
+    width: 90%;
+    height: 5px;
+    margin:0 5%;
+}
 
+.nav-tabs>li.disabled>a:hover{
+    border-color: transparent;
 }
 
 /*Bootstrap customization*/
