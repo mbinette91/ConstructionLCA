@@ -1,190 +1,45 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <title>Construction LCA</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link type="text/css" rel="stylesheet" href="/css/layout-default.css">
-    <style>
-        .clear{clear:both;float:none !important;max-height: 0 !important;height: 0 !important;min-height: 0 !important; }
-
-        #tree {
-            width:300px;
-        }
-
-        #workspace .section {
-            display: none;
-            padding: 30px;
-        }
-        #workspace .section.active {
-            display: block;
-        }
-
-        #fullscreen-trigger {
-            float: right;
-        }
-        #fullscreen-trigger .glyphicon {
-            display: none;
-            cursor: pointer;
-        }
-        #fullscreen-trigger:not(.active) .glyphicon.glyphicon-fullscreen {
-            display: block;
-        }
-        #fullscreen-trigger.active .glyphicon.glyphicon-resize-small {
-            display: block;
-        }
-
-        /*Bootstrap customization*/
-        .btn {
-            border-radius: 0;
-        }
-
-        .nav-tabs>li:first-child>a, .nav-tabs>li.active:first-child>a:focus, .nav-tabs>li.active:first-child>a:hover  {
-            border-left: 0;
-        }
-        .nav-tabs>li>a {
-            border-radius: 0;
-        }
-        .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
-            border-top: 2px solid #3498db;
-        }
-
-        .progress-bar.active, .progress.active .progress-bar {
-            border-radius: 5px;
-        }
-
-        /*ui-layout customization*/
-        .ui-layout-pane {
-            padding: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="pane ui-layout-west" id="tree">
-        <div class="wat"></div>
-    </div>
-    <div class="pane ui-layout-center" id="workspace">
-        <nav id="tabs">
-            <ul class="nav nav-tabs" role="presentation">
-                <li role="presentation" class="active"><a href="#Preview">Preview</a></li>
-                <li role="presentation" class="lca-tree"><a href="#Stats">Stats</a></li>
-                <li id="fullscreen-trigger" class="btn-lg">
-                    <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-                    <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
-                </li>
-            </ul>
-        </nav>
-        <div class="section active" id="Preview">
-            UNITY PREVIEW HERE.
+    <head>
+        <title>Construction LCA</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link type="text/css" rel="stylesheet" href="/css/libs/layout-default.css">
+        <link type="text/css" rel="stylesheet" href="/css/main.css">
+    </head>
+    <body>
+        <div class="pane ui-layout-west" id="tree">
+            <div class="wat"></div>
         </div>
-        <div class="section" id="Stats">
-            <div class="progress">
-                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
-                    <span class="sr-only"></span>
+        <div class="pane ui-layout-center" id="workspace">
+            <nav id="tabs">
+                <ul class="nav nav-tabs" role="presentation">
+                    <li role="presentation" class="active"><a href="#Preview">Preview</a></li>
+                    <li role="presentation" class="lca-tree"><a href="#Stats">Stats</a></li>
+                    <li id="fullscreen-trigger" class="btn-lg">
+                        <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                        <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="section active" id="Preview">
+                UNITY PREVIEW HERE.
+            </div>
+            <div class="section" id="Stats">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
+                        <span class="sr-only"></span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="clear"></div>
+        <div class="clear"></div>
 
-    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="/js/jquery-ui.js"></script>
-    <script type="text/javascript" src="/js/jquery.layout.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/js/libs/jquery-ui.js"></script>
+        <script type="text/javascript" src="/js/libs/jquery.layout.js"></script>
 
-    <script>
-        var FullScreenManager = function (firstName) {
-            this.triggers = []
-        };
-
-        FullScreenManager.prototype.initialize = function() {
-            var that = this;
-            $(window).resize(function () {
-                that.refreshTriggers();
-            })
-        };
-
-        FullScreenManager.prototype.isFullScreen = function() {
-            return ((window.fullScreen) || (window.innerWidth == screen.width && window.innerHeight == screen.height));
-        };
-
-        FullScreenManager.prototype.goFullscreen = function() {
-            console.log("Going FullScreen...");
-
-            var element = document.documentElement;
-            if(element.requestFullscreen) {
-                element.requestFullscreen();
-            } else if(element.mozRequestFullScreen) {
-                element.mozRequestFullScreen();
-            } else if(element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            } else if(element.msRequestFullscreen) {
-                element.msRequestFullscreen();
-            }
-        }
-
-        FullScreenManager.prototype.exitFullscreen = function() {
-            console.log("Exiting FullScreen...");
-
-            if(document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if(document.mozCancelFullScreen) {
-                document.mozCancelFullScreen();
-            } else if(document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        }
-
-        FullScreenManager.prototype.triggerFullscreen = function() {
-            if(this.isFullScreen())
-                this.exitFullscreen()
-            else
-                this.goFullscreen();
-        }
-
-        FullScreenManager.prototype.refreshTriggers = function() {
-            if(this.isFullScreen()) {
-                for(i in this.triggers)
-                    $(this.triggers[i]).addClass("active");
-            }
-            else {
-                for(i in this.triggers)
-                    $(this.triggers[i]).removeClass("active");
-            }
-        }
-
-        FullScreenManager.prototype.addTriggerElement = function(element) {
-            this.triggers.push(element);
-
-            var that = this;
-            $(element).click(function () {
-                that.triggerFullscreen();
-            })
-
-            this.refreshTriggers();
-        }
-
-        $(function(){
-            console.log("aaa")
-            $('#tabs .active a').click(function(e) {
-                e.preventDefault()
-                $(this).tab('show')
-            })
-            $('#tabs .second-tab a').click(function(e) {
-                e.preventDefault()
-                $(this).tab('show')
-            })
-            $('#tabs .lca-tree a').click(function(e) {
-                e.preventDefault()
-                $(this).tab('show')
-            })
-
-            var fullScreenManager = new FullScreenManager()
-            fullScreenManager.initialize()
-            fullScreenManager.addTriggerElement($("#fullscreen-trigger"))
-        })
-
-        $(document).ready(function(){
-            $("body").layout({ slidable: false, togglerLength_closed: -1, west: { size: $(".ui-layout-west").width() } });
-        });
-    </script>
-</body>
+        <script type="text/javascript" src="/js/FullscreenManager.js"></script>
+        <script type="text/javascript" src="/js/main.js"></script>
+    </body>
 </html>

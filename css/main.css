@@ -1,0 +1,56 @@
+
+.clear{clear:both;float:none !important;max-height: 0 !important;height: 0 !important;min-height: 0 !important; }
+
+#tree {
+    width:300px;
+}
+
+#workspace .section {
+    display: none;
+    padding: 30px;
+}
+#workspace .section.active {
+    display: block;
+}
+
+#fullscreen-trigger {
+    float: right;
+}
+#fullscreen-trigger .glyphicon {
+    display: none;
+    cursor: pointer;
+}
+#fullscreen-trigger:not(.active) .glyphicon.glyphicon-fullscreen {
+    display: block;
+}
+#fullscreen-trigger.active .glyphicon.glyphicon-resize-small {
+    display: block;
+}
+
+nav#tabs .progress {
+
+}
+
+/*Bootstrap customization*/
+.btn {
+    border-radius: 0;
+}
+
+.nav-tabs>li:first-child>a, .nav-tabs>li.active:first-child>a:focus, .nav-tabs>li.active:first-child>a:hover  {
+    border-left: 0;
+}
+.nav-tabs>li>a {
+    border-radius: 0;
+}
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    border-top: 2px solid #3498db;
+}
+
+.progress-bar.active, .progress.active .progress-bar {
+    border-radius: 5px;
+}
+
+/*ui-layout customization*/
+.ui-layout-pane {
+    padding: 0;
+}
