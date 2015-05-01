@@ -27,4 +27,13 @@ $(document).ready(function(){
         }
         $('.progress-bar').css('width', statsPercentLoaded+'%').attr('aria-valuenow', statsPercentLoaded); 
     }, 100);
+
+    var unityManager = new UnityManager($("#unityPlayer"));
+    unityManager.initialize()
+    $('#show-cube').click(function(){
+        unityManager.sendMessageToUnity("show")
+    })
+    $('#hide-cube').click(function(){
+        unityManager.sendMessageToUnity("hide")
+    })
 })

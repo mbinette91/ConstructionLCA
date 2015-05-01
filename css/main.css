@@ -5,9 +5,14 @@
     width:300px;
 }
 
+#workspace #section-container {
+    height:100%;
+}
+
 #workspace .section {
     display: none;
-    padding: 30px;
+    width:100%;
+    height:100%;
 }
 #workspace .section.active {
     display: block;
@@ -62,4 +67,31 @@ nav#tabs .progress {
 /*ui-layout customization*/
 .ui-layout-pane {
     padding: 0;
+}
+
+/*Unity Player*/
+div.broken,
+div.missing {
+    margin: auto;
+    position: relative;
+    top: 50%;
+    width: 193px;
+}
+div.broken a,
+div.missing a {
+    height: 63px;
+    position: relative;
+    top: -31px;
+}
+div.broken img,
+div.missing img {
+    border-width: 0px;
+}
+div.broken {
+    display: none;
+}
+div#unityPlayer {
+    cursor: default;
+    height: 100%;
+    width: 100%;
 }

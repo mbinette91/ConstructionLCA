@@ -9,6 +9,8 @@
     <body>
         <div class="pane ui-layout-west" id="tree">
             DISPLAY TREE HERE.
+            <div id="hide-cube">Hide cube</div>
+            <div id="show-cube" style="display:none;">Show cube</div>
         </div>
         <div class="pane ui-layout-center" id="workspace">
             <nav id="tabs">
@@ -32,11 +34,24 @@
                     </li>
                 </ul>
             </nav>
-            <div class="section active" id="Preview">
-                UNITY PREVIEW HERE.
-            </div>
-            <div class="section" id="Stats">
-                DISPLAY LCA STATS HERE.
+            <div id="section-container">
+                <div class="section active" id="Preview">
+                    <div id="unityPlayer">
+                        <div class="missing">
+                            <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
+                                <img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" />
+                            </a>
+                        </div>
+                        <div class="broken">
+                            <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now! Restart your browser after install.">
+                                <img alt="Unity Web Player. Install now! Restart your browser after install." src="http://webplayer.unity3d.com/installation/getunityrestart.png" width="193" height="63" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="section" id="Stats">
+                    DISPLAY LCA STATS HERE.
+                </div>
             </div>
         </div>
         <div class="clear"></div>
@@ -47,7 +62,9 @@
         <script type="text/javascript" src="/js/libs/jquery.layout.js"></script>
 
         <script type="text/javascript" src="/js/utils.js"></script>
+        <script type="text/javascript" src="/UnityBuild/UnityObject2.js"></script>
         <script type="text/javascript" src="/js/FullscreenManager.js"></script>
+        <script type="text/javascript" src="/js/UnityManager.js"></script>
         <script type="text/javascript" src="/js/main.js"></script>
     </body>
 </html>

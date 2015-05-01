@@ -3,7 +3,7 @@ This class handles going in and out of Fullscreen mode.
 Supported on most (but not all) browsers.
 */
 
-var FullScreenManager = function (firstName) {
+var FullScreenManager = function () {
     this.triggers = []
 };
 
