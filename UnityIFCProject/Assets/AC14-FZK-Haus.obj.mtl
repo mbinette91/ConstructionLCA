@@ -1,0 +1,1063 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.0.1262)
+
+newmtl <IFCDefault>
+kd 0.6 0.6 0.6
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kupfer
+kd 0.218749 0.0773669 0.0500825
+ks 0.749997 0.265258 0.171712
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Beton
+kd 0.494118 0.497647 0.444706
+ks 0.027451 0.0276471 0.0247059
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Kiefer, gl\S\dnzend
+kd 0.578293 0.452122 0.271476
+ks 0.722866 0.565152 0.339345
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Glas
+kd 0.058053 0.0753292 0.0675212
+ks 0.58053 0.753292 0.675212
+d 0.12
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Chrom
+kd 0.476768 0.476768 0.476768
+ks 0.915395 0.915395 0.915395
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Kiefer
+kd 0.713227 0.557617 0.334821
+ks 0.0963821 0.0753536 0.0452461
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Holz Nu\S\_baum
+kd 0.429412 0.26051 0.160314
+ks 0.411765 0.249804 0.153725
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Anstrich
+kd 0.81 0.81 0.81
+ks 0.09 0.09 0.09
+d 1
+illum 1
+
+newmtl Beton
+kd 0.494118 0.497647 0.444706
+ks 0.027451 0.0276471 0.0247059
+d 1
+illum 1
+
+newmtl Ziegel
+kd 0.74655 0.33847 0.093048
+ks 0 0 0
+d 1
+illum 1
+
+newmtl Ziegel
+kd 0.74655 0.33847 0.093048
+ks 0 0 0
+d 1
+illum 1
+
+newmtl Erde
+kd 0.572549 0.501961 0.454902
+ks 0 0 0
+d 1
+illum 1
+
+newmtl Erde
+kd 0.572549 0.501961 0.454902
+ks 0 0 0
+d 1
+illum 1
+
+newmtl Erde
+kd 0.572549 0.501961 0.454902
+ks 0 0 0
+d 1
+illum 1
+
+newmtl Erde
+kd 0.572549 0.501961 0.454902
+ks 0 0 0
+d 1
+illum 1
+
