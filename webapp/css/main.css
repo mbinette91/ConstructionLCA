@@ -99,3 +99,31 @@ div#unityPlayer {
     height: 100%;
     width: 100%;
 }
+
+/*Tree*/
+#tree .glyphicon-type1{
+    width: 0; 
+    height: 0; 
+    margin-top: 4px;
+    margin-left: 4px;
+    margin-right: 8px;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 14px solid orange;
+}
+
+#tree .glyphicon-type2{
+    height: 20px;
+    width: 12px;
+    margin-top: 2px;
+    margin-right: 14px;
+    background-color: red;
+}
+
+#tree .glyphicon-type3{
+    height: 20px;
+    width: 22px;
+    margin-top: 2px;
+    margin-right: 4px;
+    background-color: red;
+}

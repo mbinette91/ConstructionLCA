@@ -48,7 +48,7 @@ GUI.prototype.initializeStats = function(){
 }
 
 GUI.prototype.initializeUnity = function(){
-	that = this;
+    that = this;
     this.unity.initialize($("#unityPlayer"), that.initializeUnity_callback);
 }
 
@@ -57,23 +57,66 @@ GUI.prototype.initializeUnity_callback = function() {
 }
 
 /* Real functions */
-GUI.prototype.displayTree = function(tree, level) {
-	$("#tree .loading").hide();
+GUI.prototype.generateTreeHTML = function(tree) {
+    var list = $("<ul>")
 
-	var spacing = ""
-	if(!level) {
-		level = 0;
-	}
-	else {
-		for(var i = 0; i < level; i++)
-			spacing += '&nbsp;&nbsp;';
-	}
+    for(var i in tree) {
+        var node = tree[i];
+        var nodeType = 'type' + Math.floor((Math.random() * 3) + 1);
+        var htmlNode = $("<li>" + node[0] + "</li>")
+        htmlNode.data('jstree', {'type': nodeType}) // Insert data before appending to the list.
+        list.append(htmlNode); // Insert into node before appending stuff into it.
+        if(node[1] && node[1].length > 0)
+            htmlNode.append( this.generateTreeHTML(node[1]) );
+    }
 
-	for(i in tree) {
-		node = tree[i];
-		$("#tree .content").append("<div>" + spacing + node[0] + "</div>");
-		this.displayTree(node[1], level + 1);
-	}
+    return list;
+}
+
+GUI.prototype.displayTree = function(tree) {
+    that = this;
+    $("#tree .loading").hide();
+
+    $("#tree .content").append( this.generateTreeHTML(tree) );
+
+    $('#tree .content').jstree({ 
+        "core" : {
+            "themes" : {
+                "variant" : "medium",
+                "dots" : false
+            }
+        },
+        "checkbox": {
+            'tie_selection':false
+        },
+        "types" : {
+            "type1" : {
+                "icon" : "glyphicon-type1"
+            },
+            "type2" : {
+                "icon" : "glyphicon-type2"
+            },
+            "type3" : {
+                "icon" : "glyphicon-type3"
+            },
+        },
+        "plugins" : [ "wholerow", "checkbox", 'types' ]
+    }).on("check_node.jstree", function (e, data) {
+        that.handleTreeStatusChanged(e, data)
+    }).on("uncheck_node.jstree", function (e, data) {
+        that.handleTreeStatusChanged(e, data)
+    }).jstree("check_all", true);
+}
+
+GUI.prototype.handleTreeStatusChanged = function(e, data) {
+    var checkboxData = data.instance._model.data; // '#' contains info about all the other children
+    var checkboxDataIndexes = checkboxData['#'].children_d;
+    bitmap = ""
+    for(var i = 0; i < checkboxDataIndexes.length; i++){
+        var index = checkboxDataIndexes[i]
+        bitmap += checkboxData[index].state.checked? '1' : '0';
+    }
+    that.unity.sendMessageToUnity("SetTreeVisibility-" + bitmap);
 }
 
 
