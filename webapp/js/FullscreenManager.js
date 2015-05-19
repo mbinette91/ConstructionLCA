@@ -73,4 +73,3 @@ FullScreenManager.prototype.addTriggerElement = function(element) {
 
     this.refreshTriggers();
 }
-FullScreenManager = new FullScreenManager(); // Singleton
