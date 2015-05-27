@@ -46,7 +46,6 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\MouseOrbit.js" />
      <Compile Include="Assets\WebappFacade.js" />
      <None Include="Assets\EsotericMeshImporter\Readme.txt" />
   </ItemGroup>

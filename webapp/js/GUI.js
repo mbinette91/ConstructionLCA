@@ -73,9 +73,9 @@ GUI.prototype.displayTree = function(tree) {
                 "dots" : false
             }
         },
-        "checkbox": {
-            'tie_selection':false
-        },
+        //"checkbox": {
+        //    'tie_selection':false
+        //},
         "types" : {
             "type1" : {
                 "icon" : "glyphicon-type1"
@@ -87,11 +87,13 @@ GUI.prototype.displayTree = function(tree) {
                 "icon" : "glyphicon-type3"
             },
         },
-        "plugins" : [ "wholerow", "checkbox", 'types' ]
+        "plugins" : [ "wholerow", 'types'] // , "checkbox"]
     }).on("check_node.jstree", function (e, data) {
         that.handleTreeStatusChanged(e, data)
     }).on("uncheck_node.jstree", function (e, data) {
         that.handleTreeStatusChanged(e, data)
+    }).on("select_node.jstree", function (e, data) {
+        that.handleSelectStatusChanged(e, data)
     }).jstree("check_all", true);
 }
 
@@ -104,6 +106,17 @@ GUI.prototype.handleTreeStatusChanged = function(e, data) {
         bitmap += checkboxData[index].state.checked? '1' : '0';
     }
     that.unity.sendMessageToUnity("SetTreeVisibility-" + bitmap);
+}
+
+GUI.prototype.handleSelectStatusChanged = function(e, data) {
+    var checkboxData = data.instance._model.data; // '#' contains info about all the other children
+    var checkboxDataIndexes = checkboxData['#'].children_d;
+    bitmap = ""
+    for(var i = 0; i < checkboxDataIndexes.length; i++){
+        var index = checkboxDataIndexes[i]
+        if(index == data.node.id)
+            that.unity.sendMessageToUnity("FocusOnObject-" + i);
+    }
 }
 
 
