@@ -5,6 +5,11 @@
     width:300px;
 }
 
+#tree .loading {
+    margin: 30px 0;
+    text-align: center;
+}
+
 #workspace #section-container {
     height:100%;
 }
