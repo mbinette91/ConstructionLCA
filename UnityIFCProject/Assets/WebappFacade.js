@@ -1,8 +1,13 @@
 ﻿#pragma strict
 
 var ifcObjectContainer : GameObject;
-var modelMiddlePoint : Vector3 = new Vector3(-3,3,-2);
-var distanceCamFocus : float = 5;
+private var lastClickTime : float = 0;
+private var catchTime : float = 0.25;
+private var modelMiddlePoint : Vector3 = new Vector3(-3,6,-2);
+private var distanceCamFocus : float = 5;
+
+enum FocusStatus { Default, Custom, None };
+var focusStatus : FocusStatus;
 
 function Start () {
 	Application.ExternalCall("UnityFacade_HandleMessage", "DoneLoading");
@@ -11,11 +16,22 @@ function Start () {
 
 	//Tests:
 	//this.SetTreeVisibility(this.ifcObjectContainer, "10100000000110000000000000000000000001101000000000000000".ToCharArray());
-	//this.FocusOnObject(this.ifcObjectContainer, 19);
+	//this.FocusOnObject(this.ifcObjectContainer, GetGameObjectById(this.ifcObjectContainer, 19));
 }
 
 function Update () {
-
+	if(Input.GetButtonDown("Fire1")){
+		if(Time.time - lastClickTime < catchTime){
+			var ray : Ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			//Debug.DrawRay(ray.origin, 10*ray.direction, Color.red, 100, true);
+			var hit : RaycastHit;
+			if (Physics.Raycast(ray, hit)) {
+				ResetObjectStyle(this.ifcObjectContainer);
+				this.FocusOnObject(this.ifcObjectContainer, hit.transform.gameObject);
+			}
+		}
+		lastClickTime = Time.time;
+	}
 }
 
 function GetTree(tree : GameObject) : Array {
@@ -34,6 +50,9 @@ function GetTree(tree : GameObject) : Array {
 function ResetObjectStyle(tree : GameObject) : void {
 	for(var i = 0; i < tree.transform.childCount; i++) {
 		var child : GameObject = tree.transform.GetChild(i).gameObject;
+		if(child.collider){
+			child.collider.enabled = true;
+		}
 		if(child.renderer){
 			child.renderer.enabled = true;
 			child.renderer.material.color.r = 1.0;
@@ -45,12 +64,29 @@ function ResetObjectStyle(tree : GameObject) : void {
 	}
 }
 
-function FocusOnObject(tree : GameObject, id : int) : void {
+function GetGameObjectById(tree : GameObject, id : int) : GameObject {
+	for(var i = 0; i < tree.transform.childCount; i++) {
+		var child : GameObject = tree.transform.GetChild(i).gameObject;
+		if(id == 0) {
+			Debug.Log(child);
+			return child;
+		}
+
+		id--;
+		var go : GameObject = GetGameObjectById(child, id);
+		if(go)
+			return go;
+	}
+
+	return null; //Not found!
+}
+
+function FocusOnObject(tree : GameObject, gameObject : GameObject) : void {
 	for(var i = 0; i < tree.transform.childCount; i++) {
 		var child : GameObject = tree.transform.GetChild(i).gameObject;
 		if(child.renderer){
 			if(child.transform.childCount == 0) {
-				if(id != 0){
+				if(child != gameObject){
 					child.renderer.material.color.r = 1.0;
 					child.renderer.material.color.g = 1.0;
 					child.renderer.material.color.b = 1.0;
@@ -71,23 +107,27 @@ function FocusOnObject(tree : GameObject, id : int) : void {
 						goPosition = meshFilter.mesh.vertices[0];
 					}
 					var newCamPosition = (camPosition - goPosition).normalized * this.distanceCamFocus;
-					camPosition = newCamPosition;
 					cam.transform.position = goPosition + newCamPosition; //TO-DO: Get rid of this little magic.
 					cam.transform.LookAt(goPosition);
+					camPosition = cam.transform.position;
+
 					var hits : RaycastHit[];
-					hits = Physics.SphereCastAll(goPosition, 3.0f, (camPosition - goPosition));
+					Debug.DrawRay(goPosition, (camPosition - goPosition), Color.green, 100, true);
+					hits = Physics.SphereCastAll(goPosition, 1.0f, (camPosition - goPosition));
+
 					for(var j = 0; j < hits.Length; j++) { 
-						var gameObject : GameObject = hits[j].transform.gameObject;
-						Debug.Log(gameObject);
-						if(gameObject != child) {
-							gameObject.renderer.material.color.a = Mathf.Min(gameObject.renderer.material.color.a, 0.1);
+						var go : GameObject = hits[j].transform.gameObject;
+						if(go != child) {
+							go.renderer.enabled = false;
+							go.renderer.material.color.a = 0.1;
+							go.collider.enabled = false; // For the double-click feature.
 						}
 					}
+					focusStatus = FocusStatus.Default;
 				}
 			}
 		}
-		id--;
-		FocusOnObject(child, id);
+		FocusOnObject(child, gameObject);
 	}
 }
 
@@ -124,7 +164,7 @@ function HandleMessage(message : String) {
 			if(messageParts.length > 1){
 				var id = int.Parse(messageParts[1]);
 				ResetObjectStyle(this.ifcObjectContainer);
-				FocusOnObject(this.ifcObjectContainer, id);
+				FocusOnObject(this.ifcObjectContainer, GetGameObjectById(this.ifcObjectContainer, id));
 			}
 			break;
 	}
