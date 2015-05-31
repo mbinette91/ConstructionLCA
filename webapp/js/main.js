@@ -1,5 +1,5 @@
 
 $(document).ready(function(){
-	projectId = ? : 'Test';
+	projectId = 'Test';
     GUI.Instance.initialize(projectId);
 })
