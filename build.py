@@ -2,7 +2,7 @@ import os
 import subprocess
 import shutil
 
-project_id = '123'
+project_id = 'Test'
 
 TEMP = os.getcwd().replace("\\", '/') + "/tmp"
 

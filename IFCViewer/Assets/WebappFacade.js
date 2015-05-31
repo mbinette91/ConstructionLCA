@@ -55,12 +55,19 @@ function ResetObjectStyle(tree : GameObject) : void {
 		}
 		if(child.renderer){
 			child.renderer.enabled = true;
-			child.renderer.material.color.r = 1.0;
-			child.renderer.material.color.g = 1.0;
-			child.renderer.material.color.b = 1.0;
-			child.renderer.material.color.a = 1.0;
+			SetRendererRGBA(child.renderer, 1, 1, 1, 1);
 		}
 		ResetObjectStyle(child);
+	}
+}
+
+function SetRendererRGBA(renderer : Renderer, r: float, g : float, b : float, a : float){
+	for(var j = 0; j < renderer.materials.Length; j++) {
+		var material : Material = renderer.materials[j];
+		material.color.r = r;
+		material.color.g = g;
+		material.color.b = b;
+		material.color.a = a;
 	}
 }
 
@@ -87,16 +94,10 @@ function FocusOnObject(tree : GameObject, gameObject : GameObject) : void {
 		if(child.renderer){
 			if(child.transform.childCount == 0) {
 				if(child != gameObject){
-					child.renderer.material.color.r = 1.0;
-					child.renderer.material.color.g = 1.0;
-					child.renderer.material.color.b = 1.0;
-					child.renderer.material.color.a = Mathf.Min(child.renderer.material.color.a, 0.9);
+					SetRendererRGBA(child.renderer, 1, 1, 1, Mathf.Min(child.renderer.material.color.a, 0.9));
 				}
 				else {
-					child.renderer.material.color.r = 0.5;
-					child.renderer.material.color.g = 1.0;
-					child.renderer.material.color.b = 1.0;
-					child.renderer.material.color.a = 1.0;
+					SetRendererRGBA(child.renderer, 0.5, 1, 1, 1);
 					var cam : Camera = Camera.main;
 					var camPosition : Vector3 = modelMiddlePoint; //Start from the middle
 					var goPosition : Vector3 = child.transform.position;
@@ -119,7 +120,7 @@ function FocusOnObject(tree : GameObject, gameObject : GameObject) : void {
 						var go : GameObject = hits[j].transform.gameObject;
 						if(go != child) {
 							go.renderer.enabled = false;
-							go.renderer.material.color.a = 0.1;
+							SetRendererRGBA(go.renderer, 1, 1, 1, Mathf.Min(child.renderer.material.color.a, 0.1));
 							go.collider.enabled = false; // For the double-click feature.
 						}
 					}

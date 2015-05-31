@@ -38,7 +38,7 @@ class AutomatedScript
 
 		//Change shaders
 		Shader shader = Shader.Find("Transparent/Diffuse");
-		SetShader(go, shader);
+		ProcessTree(go, shader);
 
 		EditorApplication.SaveScene(newScenePath, true);
 
@@ -47,13 +47,15 @@ class AutomatedScript
 			BuildTarget.WebPlayer, BuildOptions.None);
 	}
 
-	static void SetShader(GameObject tree, Shader shader) {
+	static void ProcessTree(GameObject tree, Shader shader) {
 		for(int i = 0; i < tree.transform.childCount; i++) {
 			GameObject child  = tree.transform.GetChild(i).gameObject;
-			if(child.renderer && child.renderer.material && child.renderer.material.shader) {
-				child.renderer.material.shader = shader;
+			if(child.renderer) {
+				foreach(Material material in child.renderer.materials)
+					material.shader = shader;
+ 				child.AddComponent<MeshCollider>();
 			}
-			SetShader(child, shader);
+			ProcessTree(child, shader);
 		}
 	}
 }
