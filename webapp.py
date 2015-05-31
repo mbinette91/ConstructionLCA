@@ -3,6 +3,27 @@ import threading
 import urlparse
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from UnityBuilder import UnityBuilder
+import pickle
+
+db = None;
+def GetUniqueProjectId():
+	global db
+	filename = "../temp.db"
+
+	if not db:
+		db = {'last_project_id': 0}
+		if os.path.isfile(filename):
+			file = open(filename, 'r')
+			db = pickle.load(file)
+			file.close()
+
+	db['last_project_id'] += 1
+
+	file = open(filename, 'w')
+	pickle.dump(db, file);
+	file.close()
+
+	return db['last_project_id']
 
 class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 	def do_GET(self):
@@ -40,7 +61,8 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			SimpleHTTPRequestHandler.do_POST(self);
 
 	def new_project(self, query):
-		id = '207'
+		id = str(GetUniqueProjectId());
+
 		print "Creating new project with id =", id
 		result = self._upload_ifc(id)
 

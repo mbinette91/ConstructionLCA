@@ -3,4 +3,5 @@
 /IFCViewer/Temp
 /tmp
 /webapp/UnityBuilds/
+temp.db
 *.pyc

@@ -30,7 +30,7 @@ class UnityBuilder:
 		# Copy IFC file
 		shutil.copyfile(TEMP + "/IFC_" + model_id + ".ifc", new_project_path + "/Assets/Resources/IFC_" + model_id + ".ifc");
 
-		# MAKE SURE TO SANITIZE USER INPUT. COMMAND INJECTION POSSIBLE HERE (???)
+		# Let the Unity Editor do it's work...
 		subprocess.call('"C:\Program Files (x86)\Unity\Editor\Unity.exe" -batchmode -quit -executeMethod AutomatedScript.PerformBuild -id "'+model_id+'" -projectPath "' + new_project_path + '"')
 
 		# Copy the new unity build into the builds folder
