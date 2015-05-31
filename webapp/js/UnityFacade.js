@@ -13,7 +13,7 @@ UnityFacade = function() {
 }
 UnityFacade._MainInstance = null; // Can only be initialized once!
 
-UnityFacade.prototype.initialize = function($unityPlayer, callback) {
+UnityFacade.prototype.initialize = function(projectId, $unityPlayer, callback) {
     if(!this._initialized) {
         this._initialized = true;
         this._callback = callback;
@@ -60,7 +60,7 @@ UnityFacade.prototype.initialize = function($unityPlayer, callback) {
                 }
             });
 
-            u.initPlugin($unityPlayer, "UnityBuild/UnityBuild.unity3d");
+            u.initPlugin($unityPlayer, "UnityBuilds/Build-" + projectId + ".unity3d");
         });
     }
     else {

@@ -1,4 +1,5 @@
 
 $(document).ready(function(){
-    GUI.Instance.initialize();
+	projectId = ? : 'Test';
+    GUI.Instance.initialize(projectId);
 })

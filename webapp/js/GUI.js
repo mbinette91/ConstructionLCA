@@ -5,9 +5,9 @@ var GUI = function () {
     this.stats = new StatsModule();
 };
 
-GUI.prototype.initialize = function() {
+GUI.prototype.initialize = function(projectId) {
     var that = this;
-    var fn_onresize = 
+    this.projectId = projectId;
 
     $("body").layout({ 
         slidable: false, 
@@ -30,7 +30,7 @@ GUI.prototype.initialize = function() {
 
     this.stats.initialize();
 
-    this.unity.initialize($("#unityPlayer"), function(){ 
+    this.unity.initialize(projectId, $("#unityPlayer"), function(){ 
         that.unity.sendMessageToUnity("GetTree"); 
     });
 };
