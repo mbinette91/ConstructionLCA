@@ -33,7 +33,7 @@ class AutomatedScript
 
 
 		GameObject container = GameObject.Find("IFCObjectContainer");
-		GameObject go = GameObject.Instantiate(Resources.Load("AC14-FZK-Haus")) as GameObject; //Load newAssetPath
+		GameObject go = GameObject.Instantiate(Resources.Load("IFC_" + id)) as GameObject; //Load newAssetPath
 		go.transform.parent = container.transform;
 
 		//Change shaders

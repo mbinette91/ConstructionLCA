@@ -8,73 +8,15 @@
         <link type="text/css" rel="stylesheet" href="/css/main.css">
     </head>
     <body>
-        <div class="pane ui-layout-west" id="tree">
-            <div class="loading">Loading tree...</div>
-            <div class="content"></div>
-        </div>
-        <div class="pane ui-layout-center" id="workspace">
-            <nav id="tabs">
-                <ul class="nav nav-tabs" role="presentation">
-                    <li role="presentation" class="active">
-                        <a href="#Preview">Preview</a>
-                    </li>
-                    <li role="presentation" class="details">
-                        <a href="#Details">Details</a>
-                    </li>
-                    <li role="presentation" class="stats disabled">
-                        <a href="#Stats">
-                            Stats
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >
-                                    <span class="sr-only"></span>
-                                </div>
-                            </div>
-                        </a>
-                    </li>
-                    <li id="fullscreen-trigger" class="btn-lg">
-                        <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-                        <span class="glyphicon glyphicon-resize-small" aria-hidden="true"></span>
-                    </li>
-                </ul>
-            </nav>
-            <div id="section-container">
-                <div class="section active" id="Preview">
-                    <div id="unityPlayer">
-                        <div class="missing">
-                            <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
-                                <img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" />
-                            </a>
-                        </div>
-                        <div class="broken">
-                            <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now! Restart your browser after install.">
-                                <img alt="Unity Web Player. Install now! Restart your browser after install." src="http://webplayer.unity3d.com/installation/getunityrestart.png" width="193" height="63" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="section" id="Details">
-                    DISPLAY DETAILS HERE.
-                </div>
-                <div class="section" id="Stats">
+        <a href="/project?id=Test">Test project</a>
+        <form action="/project" method="POST" enctype="multipart/form-data">
+            Select IFC file to upload:
+            <input type="file" name="file" id="file">
+            <input type="submit" value="Upload IFC" name="submit">
+        </form>
 
-                </div>
-            </div>
-        </div>
         <div class="clear"></div>
 
         <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="/js/libs/jquery-ui.js"></script>
-        <script type="text/javascript" src="/js/libs/jquery.layout.js"></script>
-        <script type="text/javascript" src="/js/libs/jstree.min.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
-        <script type="text/javascript" src="/js/utils.js"></script>
-        <script type="text/javascript" src="/js/libs/UnityObject2.js"></script>
-        <script type="text/javascript" src="/js/FullscreenManager.js"></script>
-        <script type="text/javascript" src="/js/UnityFacade.js"></script>
-        <script type="text/javascript" src="/js/StatsModule.js"></script>
-        <script type="text/javascript" src="/js/GUI.js"></script>
-        <script type="text/javascript" src="/js/main.js"></script>
     </body>
 </html>

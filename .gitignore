@@ -2,3 +2,5 @@
 /IFCViewer/Library
 /IFCViewer/Temp
 /tmp
+/webapp/UnityBuilds/
+*.pyc
