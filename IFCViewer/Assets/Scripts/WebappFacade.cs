@@ -8,6 +8,8 @@ public class WebappFacade : MonoBehaviour
 	private float catchTime = 0.25f;
 	private Vector3 modelMiddlePoint = new Vector3(-3,6,-2);
 	private float distanceCamFocus = 5;
+	private Shader defaultShader;
+	private Shader behindShader; // Bug with some Transparent/Diffuse shaders behind focused object
 
 	enum FocusStatus { Default, Custom, None };
 	FocusStatus focusStatus;
@@ -15,6 +17,9 @@ public class WebappFacade : MonoBehaviour
 	Quaternion _initialCameraRotation;
 
 	void Start () {
+		this.defaultShader = Shader.Find("Transparent/Diffuse");
+		this.behindShader = Shader.Find("Diffuse");
+
 		Application.ExternalCall("UnityFacade_HandleMessage", "DoneLoading");
 		this.ifcObjectContainer = GameObject.Find("IFCObjectContainer");
 		ResetObjectStyle(this.ifcObjectContainer);
@@ -72,6 +77,7 @@ public class WebappFacade : MonoBehaviour
 			if(child.renderer){
 				child.renderer.enabled = true;
 				SetRendererRGBA(child.renderer, 1, 1, 1, 1);
+				SetShader(child.renderer, this.defaultShader);
 			}
 			ResetObjectStyle(child);
 		}
@@ -81,6 +87,12 @@ public class WebappFacade : MonoBehaviour
 		for(var j = 0; j < renderer.materials.Length; j++) {
 			Material material = renderer.materials[j];
 			material.color = new Color(r, g, b, a);
+		}
+	}
+
+	void SetShader(Renderer renderer, Shader shader){
+		for(var j = 0; j < renderer.materials.Length; j++) {
+			renderer.materials[j].shader = shader;
 		}
 	}
 
@@ -111,18 +123,40 @@ public class WebappFacade : MonoBehaviour
 					else {
 						SetRendererRGBA(child.renderer, 0.5f, 1, 1, 1);
 						Camera cam = Camera.main;
-						Vector3 camPosition = modelMiddlePoint; //Start from the middle
+						Vector3 camPosition = new Vector3(0,0,0);//modelMiddlePoint; //Start from the middle
 						Vector3 goPosition = child.transform.position;
 						IFCComponent ifcComp = child.GetComponent<IFCComponent>();
 						goPosition = ifcComp.centroid;
-						var newCamPosition = (camPosition - goPosition).normalized * this.distanceCamFocus;
-						cam.transform.position = goPosition + newCamPosition; //TO-DO: Get rid of this little magic.
-						cam.transform.LookAt(goPosition);
+
+						var newCamPosition = goPosition + ifcComp.facing * distanceCamFocus; //(camPosition - goPosition).normalized * distanceCamFocus;
+						cam.transform.position = newCamPosition; //TO-DO: Get rid of this little magic.
+						//Camera.main.transform.rotation = new Quaternion(0,0,0,0);
+						cam.transform.LookAt(goPosition, ifcComp.up);
 						camPosition = cam.transform.position;
 
+						var vertical_fov = Camera.main.fieldOfView;
+						var horizontal_fov = Camera.main.fieldOfView * Camera.main.aspect;
+						var MAGIC_FOV_ADJUSTMENT = 1.5f;
+						var project = Vector3.Exclude(Camera.main.transform.forward, ifcComp.size);
+						project = Vector3.Exclude(ifcComp.facing, project);
+						Debug.Log(project);
+						var distanceCamX = project.x/(2*Mathf.Tan(horizontal_fov)) * MAGIC_FOV_ADJUSTMENT;
+						var distanceCamZ = project.z/(2*Mathf.Tan(vertical_fov)) * MAGIC_FOV_ADJUSTMENT;
+						var distanceCam = project.magnitude; //Mathf.Max(Mathf.Abs(distanceCamX), Mathf.Abs(distanceCamZ));
+
+						//Readjust again
+						newCamPosition = goPosition + ifcComp.facing * distanceCam;
+						cam.transform.position = newCamPosition; //TO-DO: Get rid of this little magic.
+						cam.transform.LookAt(goPosition, ifcComp.up);
+						camPosition = cam.transform.position;
+						//Endreadjust
+						Debug.DrawRay(goPosition, (ifcComp.facing)*20, Color.red, 100, true);
+						Debug.DrawRay(goPosition, (ifcComp.up)*20, Color.blue, 100, true);
+
+						// Hits from Camera to object
 						RaycastHit[] hits;
 						Debug.DrawRay(goPosition, (camPosition - goPosition), Color.green, 100, true);
-						hits = Physics.SphereCastAll(goPosition, 1.0f, (camPosition - goPosition));
+						hits = Physics.RaycastAll(goPosition, (camPosition - goPosition));
 
 						for(var j = 0; j < hits.Length; j++) { 
 							GameObject go = hits[j].transform.gameObject;
@@ -132,6 +166,16 @@ public class WebappFacade : MonoBehaviour
 								go.collider.enabled = false; // For the double-click feature.
 							}
 						}
+
+						//Hits behind the object (bug with shaders)
+						hits = Physics.RaycastAll(goPosition, -(camPosition - goPosition));
+						for(var j = 0; j < hits.Length; j++) { 
+							GameObject go = hits[j].transform.gameObject;
+							if(go != child) {
+								SetShader(go.renderer, this.behindShader);
+							}
+						}
+
 						focusStatus = FocusStatus.Default;
 					}
 				}
