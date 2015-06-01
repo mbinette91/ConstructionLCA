@@ -38,16 +38,17 @@ public class Controller : MonoBehaviour
 
 		//Tests:
 		//this.SetTreeVisibility(this.ifcObjectContainer, "10100000000110000000000000000000000001101000000000000000");
-		//focus.Focus(GetGameObjectById(this.ifcObjectContainer, 1));
+		focus.Focus(GetGameObjectById(this.ifcObjectContainer, "ID_24"));
 	}
 
 	ArrayList GetTree(GameObject tree) {
-		// Structure: Node: [nodeName, [childNode, ...]], params: [Node, ...]
+		// Structure: Node: [nodeId, nodeName, [childNode, ...]], params: [Node, ...]
 		var components = new ArrayList();
 		for(var i = 0; i < tree.transform.childCount; i++)
 		{
 			var node = new ArrayList();
 			GameObject child = tree.transform.GetChild(i).gameObject;
+			node.Add(child.ifc().id);
 			node.Add(child.name);
 			node.Add(GetTree(child));
 			components.Add(node);
@@ -55,17 +56,16 @@ public class Controller : MonoBehaviour
 		return components;
 	}
 
-	GameObject GetGameObjectById(GameObject tree, int id)
+	GameObject GetGameObjectById(GameObject tree, string id)
 	{
 		for(var i = 0; i < tree.transform.childCount; i++) 
 		{
 			GameObject child = tree.transform.GetChild(i).gameObject;
-			if(id == 0)
+			if(id == child.ifc().id)
 			{
 				return child;
 			}
 
-			id--;
 			GameObject go = GetGameObjectById(child, id);
 			if(go)
 				return go;
@@ -109,7 +109,7 @@ public class Controller : MonoBehaviour
 			case "FocusOnObject":
 				if(messageParts.Length > 1)
 				{
-					var id = int.Parse(messageParts[1]);
+					var id = messageParts[1];
 					ifcRenderer.Reset();
 					focus.Focus(GetGameObjectById(this.ifcObjectContainer, id));
 				}

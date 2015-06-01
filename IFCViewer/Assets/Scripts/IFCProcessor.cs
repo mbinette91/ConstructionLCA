@@ -2,36 +2,41 @@
 
 class IFCProcessor
 {
+	private GameObject root = null;
 	private Shader defaultShader = null;
 
-	public void Process(GameObject gameObject)
+	public void Process(GameObject root)
 	{
+		this.root = root;
 		this.defaultShader = Shader.Find("Transparent/Diffuse");
-		Reorganize(gameObject);
-		ProcessTree(gameObject);
+		Reorganize(root);
+		ProcessTree(root);
 	}
 
 	private GameObject Reorganize_CurrentCateg = null;
 	private void Reorganize(GameObject tree)
 	{
-		string[] parts = tree.name.Split('_');
-		parts[0] = parts[0].Replace("Ifc", ""); // Get rid of IFC prefix (if any)
-		if(parts.Length > 1)
+		if(tree != root) // Don't reorganize the root node!
 		{
-			if(Reorganize_CurrentCateg == null || Reorganize_CurrentCateg.name != parts[0])
+			string[] parts = tree.name.Split('_');
+			parts[0] = parts[0].Replace("Ifc", ""); // Get rid of IFC prefix (if any)
+			if(parts.Length > 1)
 			{
-				Reorganize_CurrentCateg = new GameObject();
-				Reorganize_CurrentCateg.name = parts[0]; 
-				Reorganize_CurrentCateg.transform.parent = tree.transform.parent;
+				if(Reorganize_CurrentCateg == null || Reorganize_CurrentCateg.name != parts[0])
+				{
+					Reorganize_CurrentCateg = new GameObject();
+					Reorganize_CurrentCateg.name = parts[0]; 
+					Reorganize_CurrentCateg.transform.parent = tree.transform.parent;
+				}
+				tree.name = parts[1];
+				tree.transform.parent = Reorganize_CurrentCateg.transform;
 			}
-			tree.name = parts[1];
-			tree.transform.parent = Reorganize_CurrentCateg.transform;
-		}
-		else
-		{
-			Reorganize_CurrentCateg = null;
-			tree.name = parts[0];
-			tree.transform.parent = tree.transform.parent; // Append it to the end of the tree (keep the original order)
+			else
+			{
+				Reorganize_CurrentCateg = null;
+				tree.name = parts[0];
+				tree.transform.parent = tree.transform.parent; // Append it to the end of the tree (keep the original order)
+			}
 		}
 
 		int initialChildrenCount = tree.transform.childCount; // It'll change while we're reorganizing!

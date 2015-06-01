@@ -1,10 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public static class IFCGameObjectExtension
+{
+	public static IFCComponent ifc(this GameObject go)
+	{
+		return go.GetComponent<IFCComponent>();
+	}
+}
+
 public class IFCComponent : MonoBehaviour
 {
 	// We can store information here in the post processing of the IFC Model.
 	// -> Some components might use their child's information to generate their own.
+	public static int ID_AUTOINCREMENT = 1;
 	public string id;
 	public Vector3 verticesMin = Vector3.zero;
 	public Vector3 verticesMax = Vector3.zero;
@@ -32,7 +41,8 @@ public class IFCComponent : MonoBehaviour
 
 	public void Generate()
 	{
-		id = "default";
+		id = "ID_" + ID_AUTOINCREMENT;
+		ID_AUTOINCREMENT++;
 		GenerateGeometry();
 	}
 

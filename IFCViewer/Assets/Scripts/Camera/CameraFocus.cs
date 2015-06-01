@@ -10,6 +10,7 @@ public class CameraFocus : MonoBehaviour
 
 	private Controller controller;
 	private float _initialDistance = 5;
+	private float minDistanceCam = 1.5f; 
 	private float lastClickTime = 0;
 	private float catchTime = 0.25f;
 	private Vector3 initialCameraPosition;
@@ -62,7 +63,7 @@ public class CameraFocus : MonoBehaviour
 
 	public void Focus(GameObject gameObject)
 	{
-		IFCComponent ifcComp = gameObject.GetComponent<IFCComponent>();
+		IFCComponent ifcComp = gameObject.ifc();
 		Vector3 goPosition = ifcComp.centroid;
 
 		PlaceCamera(gameObject);
@@ -108,7 +109,7 @@ public class CameraFocus : MonoBehaviour
 
 	private void PlaceCamera(GameObject gameObject)
 	{
-		IFCComponent ifcComp = gameObject.GetComponent<IFCComponent>();
+		IFCComponent ifcComp = gameObject.ifc();
 		Vector3 goPosition = ifcComp.centroid;
 		// Debug.DrawRay(goPosition, (ifcComp.facing) * DEBUG_minLengthRay, Color.red, DEBUG_durationRay, true);
 
@@ -122,6 +123,7 @@ public class CameraFocus : MonoBehaviour
 		var projection = Vector3.Exclude(Camera.main.transform.forward, ifcComp.size);
 		projection = Vector3.Exclude(ifcComp.facing, projection);
 		var distanceCam = projection.magnitude;
+		distanceCam = Mathf.Max(distanceCam, minDistanceCam);
 
 		// Then readjust the camera's position once and for all
 		transform.position = goPosition + ifcComp.facing * distanceCam;

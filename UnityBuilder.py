@@ -37,7 +37,7 @@ class UnityBuilder:
 		shutil.copyfile(new_project_path+"/Build-"+model_id+"/Build-"+model_id+".unity3d", ROOT + "/webapp/UnityBuilds/Build-"+model_id+".unity3d");
 
 		# Delete the temp project Directory
-		shutil.rmtree(new_project_path);
+		shutil.rmtree(new_project_path); # For debugging purposes, you might want to keep the generated projects 
 
 		# Keep the IFC file (?)
 

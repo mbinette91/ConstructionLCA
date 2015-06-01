@@ -50,11 +50,11 @@ GUI.prototype.generateTreeHTML = function(tree) {
     for(var i in tree) {
         var node = tree[i];
         var nodeType = 'type' + Math.floor((Math.random() * 3) + 1);
-        var htmlNode = $("<li>" + node[0] + "</li>")
+        var htmlNode = $("<li id='"+node[0]+"'>" + node[1] + "</li>")
         htmlNode.data('jstree', {'type': nodeType}) // Insert data before appending to the list.
         list.append(htmlNode); // Insert into node before appending stuff into it.
         if(node[1] && node[1].length > 0)
-            htmlNode.append( this.generateTreeHTML(node[1]) );
+            htmlNode.append( this.generateTreeHTML(node[2]) );
     }
 
     return list;
@@ -109,14 +109,7 @@ GUI.prototype.handleTreeStatusChanged = function(e, data) {
 }
 
 GUI.prototype.handleSelectStatusChanged = function(e, data) {
-    var checkboxData = data.instance._model.data; // '#' contains info about all the other children
-    var checkboxDataIndexes = checkboxData['#'].children_d;
-    bitmap = ""
-    for(var i = 0; i < checkboxDataIndexes.length; i++){
-        var index = checkboxDataIndexes[i]
-        if(index == data.node.id)
-            that.unity.sendMessageToUnity("FocusOnObject-" + i);
-    }
+    that.unity.sendMessageToUnity("FocusOnObject-" + data.node.id);
 }
 
 
