@@ -28,33 +28,31 @@ public class IFCRenderer : MonoBehaviour
 
 	private void ResetTree(GameObject tree, Color color) 
 	{
-		for(var i = 0; i < tree.transform.childCount; i++) {
-			GameObject child = tree.transform.GetChild(i).gameObject;
-			if(child.collider){
-				child.collider.enabled = true;
+		tree.ApplyRecursively( delegate(GameObject go) {
+			if(go.collider){
+				go.collider.enabled = true;
 			}
-			if(child.renderer){
-				child.renderer.enabled = true;
-				SetColor(child.renderer, color);
-				SetShader(child.renderer, this.defaultShader);
+			if(go.renderer){
+				go.renderer.enabled = true;
 			}
-			ResetTree(child, color);
-		}
+		});
+		
+		SetColor(tree, color);
+		SetShader(tree, this.defaultShader);
 	}
 
-	public void SetColor(Renderer renderer, Color color)
+	public void SetColor(GameObject tree, Color color)
 	{
-		for(var j = 0; j < renderer.materials.Length; j++) {
-			Material material = renderer.materials[j];
+		tree.ApplyToMaterialsRecursively( delegate(Material material) {
 			material.color = color;
-		}
+		});
 	}
 
-	private void SetShader(Renderer renderer, Shader shader)
+	private void SetShader(GameObject tree, Shader shader)
 	{
-		for(var j = 0; j < renderer.materials.Length; j++) {
-			renderer.materials[j].shader = shader;
-		}
+		tree.ApplyToMaterialsRecursively( delegate(Material material) {
+			material.shader = shader;
+		});
 	}
 
 	public void PrepareFocus() 
@@ -67,14 +65,14 @@ public class IFCRenderer : MonoBehaviour
 		switch(mode)
 		{
 			case CameraFocus.ComponentStatus.Focused:
-				SetShader(gameObject.renderer, defaultShader);
-				SetColor(gameObject.renderer, focusColor);
+				SetShader(gameObject, defaultShader);
+				SetColor(gameObject, focusColor);
 				break;
 			case CameraFocus.ComponentStatus.InFront:
 				gameObject.renderer.enabled = false;
 				break;
 			case CameraFocus.ComponentStatus.Behind:
-				SetShader(gameObject.renderer, behindShader);
+				SetShader(gameObject, behindShader);
 				break;
 
 		}

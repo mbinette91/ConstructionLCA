@@ -38,7 +38,7 @@ public class Controller : MonoBehaviour
 
 		//Tests:
 		//this.SetTreeVisibility(this.ifcObjectContainer, "10100000000110000000000000000000000001101000000000000000");
-		//focus.Focus(this.ifcObjectContainer, GetGameObjectById(this.ifcObjectContainer, 19));
+		focus.Focus(GetGameObjectById(this.ifcObjectContainer, 1));
 	}
 
 	ArrayList GetTree(GameObject tree) {
