@@ -16,7 +16,9 @@ class IFCProcessor {
 					material.shader = this.defaultShader; // Change shader (for transparency)
  				child.AddComponent<MeshCollider>(); // Add default MeshCollider (for rays)
 			}
-			ProcessTree(child);
+			ProcessTree(child); // Process childs first because some components use their child's information to generate their own
+			IFCComponent ifc = child.AddComponent<IFCComponent>(); // Add default IFCComponent
+			ifc.Generate();
 		}
 	}
 }
