@@ -38,7 +38,7 @@ public class Controller : MonoBehaviour
 
 		//Tests:
 		//this.SetTreeVisibility(this.ifcObjectContainer, "10100000000110000000000000000000000001101000000000000000");
-		focus.Focus(GetGameObjectById(this.ifcObjectContainer, "ID_24"));
+		//focus.Focus(GetGameObjectById(this.ifcObjectContainer, "ID_24"));
 	}
 
 	ArrayList GetTree(GameObject tree) {
@@ -86,6 +86,11 @@ public class Controller : MonoBehaviour
 			bits = SetTreeVisibility(child, bits.Substring(1));
 		}
 		return bits;
+	}
+
+	public void SendMessageToWebapp(string message, string args)
+	{
+		Application.ExternalCall("UnityFacade_HandleMessage", message, args);
 	}
 
 	void HandleMessage(string message)

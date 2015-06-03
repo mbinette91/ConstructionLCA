@@ -62,6 +62,8 @@ GUI.prototype.generateTreeHTML = function(tree) {
 
 GUI.prototype.displayTree = function(tree) {
     that = this;
+    this._selectingProgramatically = false;
+
     $("#tree .loading").hide();
 
     $("#tree .content").append( this.generateTreeHTML(tree) );
@@ -71,7 +73,8 @@ GUI.prototype.displayTree = function(tree) {
             "themes" : {
                 "variant" : "medium",
                 "dots" : false
-            }
+            },
+            "multiple": false
         },
         //"checkbox": {
         //    'tie_selection':false
@@ -93,7 +96,8 @@ GUI.prototype.displayTree = function(tree) {
     }).on("uncheck_node.jstree", function (e, data) {
         that.handleTreeStatusChanged(e, data)
     }).on("select_node.jstree", function (e, data) {
-        that.handleSelectStatusChanged(e, data)
+        if(!that._selectingProgramatically)
+            that.handleSelectStatusChanged(e, data)
     }).jstree("check_all", true);
 }
 
@@ -110,6 +114,13 @@ GUI.prototype.handleTreeStatusChanged = function(e, data) {
 
 GUI.prototype.handleSelectStatusChanged = function(e, data) {
     that.unity.sendMessageToUnity("FocusOnObject-" + data.node.id);
+}
+
+GUI.prototype.setSelectedObject = function(args) {
+    this._selectingProgramatically = true;
+    $('#tree .content').jstree().deselect_all();
+    $('#tree .content').jstree().select_node(args);
+    this._selectingProgramatically = false;
 }
 
 

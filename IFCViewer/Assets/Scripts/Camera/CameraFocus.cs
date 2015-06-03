@@ -43,11 +43,15 @@ public class CameraFocus : MonoBehaviour
 				{
 					controller.ifcRenderer.PrepareFocus();
 					Focus(hit.transform.gameObject);
+					IFCComponent ifc = hit.transform.gameObject.ifc();
+					if(ifc)
+						controller.SendMessageToWebapp("SetSelected", ifc.id);
 				}
 				else
 				{
 					controller.ifcRenderer.Reset();
 					Reset();
+					controller.SendMessageToWebapp("SetSelected", "");
 				}
 			}
 			lastClickTime = Time.time;

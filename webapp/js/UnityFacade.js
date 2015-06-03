@@ -22,7 +22,10 @@ UnityFacade.prototype.initialize = function(projectId, $unityPlayer, callback) {
         var u = new UnityObject2({
             width: '100%', 
             height: '100%',
-            params: { enableDebugging:"1" }
+            params: { 
+                enableDebugging: "1", 
+                disableContextMenu: true 
+            }
         });
         this.unityObject = u;
 
@@ -90,6 +93,9 @@ UnityFacade.prototype.handleMessage = function(type, args) {
             break;
         case 'SetTree':
             GUI.Instance.displayTree(args);
+            break;
+        case 'SetSelected':
+            GUI.Instance.setSelectedObject(args);
             break;
     }
 }
