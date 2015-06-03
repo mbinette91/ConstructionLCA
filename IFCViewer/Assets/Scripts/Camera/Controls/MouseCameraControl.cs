@@ -1,4 +1,4 @@
-﻿//Script from: http://wiki.unity3d.com/index.php/MouseCameraControl
+﻿//Inspired from script from: http://wiki.unity3d.com/index.php/MouseCameraControl
  
 using UnityEngine;
  
@@ -7,7 +7,7 @@ public class MouseCameraControl : MonoBehaviour
 {
     // Mouse buttons in the same order as Unity
     public enum MouseButton { Left = 0, Right = 1, Middle = 2, None = 3 }
- 
+
     [System.Serializable]
     // Handles left modifiers keys (Alt, Ctrl, Shift)
     public class Modifiers
@@ -81,8 +81,18 @@ public class MouseCameraControl : MonoBehaviour
     public string mouseVerticalAxisName = "Mouse Y";
     public string scrollAxisName = "Mouse ScrollWheel";
  
+    private IFCComponent root = null;
+
+    void Start()
+    {
+        root = this.GetComponentInChildren<IFCComponent>();
+    }
+ 
     void LateUpdate ()
     {
+        if(root != null)
+            root.transform.position -= root.centroid;
+
         if (yaw.isActivated())
         {
             float rotationX = Input.GetAxis(mouseHorizontalAxisName) * yaw.sensitivity;
@@ -120,9 +130,11 @@ public class MouseCameraControl : MonoBehaviour
         if (scroll.isActivated())
         {
             float translateZ = Input.GetAxis(scrollAxisName) * scroll.sensitivity;
- 
             transform.Translate(0, 0, translateZ);
         }
+
+        if(root != null)
+            root.transform.position += root.centroid;
     }
  
 }
