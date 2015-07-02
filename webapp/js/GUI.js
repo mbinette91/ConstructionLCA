@@ -29,6 +29,24 @@ GUI.prototype.initialize = function(projectId) {
 
     this.stats.initialize();
 
+    var POOLING_INTERVAL = 1000; // Millis
+    var that = this;
+    var checkPreviewData = function(){
+        $.ajax("/data/output-" + projectId + "/", {
+            error: function(){
+                setTimeout(checkPreviewData, POOLING_INTERVAL);
+            },
+            success: function(){
+                that.initializePreview();
+            }
+        })
+    };
+
+    setTimeout(checkPreviewData, POOLING_INTERVAL);
+};
+
+GUI.prototype.initializePreview = function() {
+    var that = this;
     this.preview = new ivwindow3d(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
     this.preview.refreshSizes = function() {
         var w = $("#section-container").width();
@@ -38,7 +56,7 @@ GUI.prototype.initialize = function(projectId) {
         that.preview.initHardware();
     };
     this.preview.refreshSizes();
-};
+}
 
 
 GUI.prototype.handleWindowSizeChanged = function() {

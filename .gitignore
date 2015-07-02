@@ -5,3 +5,4 @@
 /webapp/data/output-*
 temp.db
 *.pyc
+/database.db3
