@@ -1,6 +1,8 @@
 /**
 This class handles Unity interactions. 
 Can only be instanciated and initialized once.
+
+DEPRECATED. Some functionality hasn't been moved yet.
 */
 
 UnityFacade = function() {

@@ -1,7 +1,7 @@
 /IFCViewer/Library/metadata
 /IFCViewer/Library
 /IFCViewer/Temp
-/tmp
-/webapp/UnityBuilds/
+/tmp/IFC_*
+/webapp/data/output-*
 temp.db
 *.pyc

@@ -1,8 +1,9 @@
 import os
 import threading
 import urlparse
+import time
 from SimpleHTTPServer import SimpleHTTPRequestHandler
-from UnityBuilder import UnityBuilder
+from ModelBuilder import ModelBuilder
 import pickle
 
 db = None;
@@ -79,8 +80,9 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			self.end_headers()
 
 	def _build_unity(self, model_id):
-		# This method can take a VERY long time and should NOT be called from the main HTTPHandler's thread.
-		builder = UnityBuilder(model_id);
+		# This method can take a long time and should NOT be called from the main HTTPHandler's thread.
+		start_time = time.time()
+		builder = ModelBuilder(model_id);
 		builder.build();
 
 	def _upload_ifc(self, id):

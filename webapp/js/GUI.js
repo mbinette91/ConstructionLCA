@@ -1,7 +1,6 @@
 
 var GUI = function () {
     this.fsManager = new FullScreenManager();
-    this.unity = new UnityFacade();
     this.stats = new StatsModule();
 };
 
@@ -30,9 +29,15 @@ GUI.prototype.initialize = function(projectId) {
 
     this.stats.initialize();
 
-    this.unity.initialize(projectId, $("#unityPlayer"), function(){ 
-        that.unity.sendMessageToUnity("GetTree"); 
-    });
+    this.preview = new ivwindow3d(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
+    this.preview.refreshSizes = function() {
+        var w = $("#section-container").width();
+        var h = $("#section-container").height();
+        $("#preview-canvas").attr("width", w);
+        $("#preview-canvas").attr("height", h);
+        that.preview.initHardware();
+    };
+    this.preview.refreshSizes();
 };
 
 
@@ -40,6 +45,7 @@ GUI.prototype.handleWindowSizeChanged = function() {
     var that = this;
 
     setTimeout(function(){
+        that.preview.refreshSizes();
         that.stats.refreshGraph();
     }, 100); // Artificial timeout because the layout plugin needs to update itself.
 }

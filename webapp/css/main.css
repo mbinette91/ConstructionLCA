@@ -132,3 +132,8 @@ div#unityPlayer {
     margin-right: 4px;
     background-color: red;
 }
+
+/*Preview*/
+#Preview #preview-canvas {
+    border: none;
+}
