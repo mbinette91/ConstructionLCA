@@ -16,8 +16,10 @@ IFCMaterials.classToMaterial = {
         "IfcSlab": "wood",
         "IfcColumn": "wood",
         "IfcRailing": "metal",
+        "IfcWall": "metal",
         "IfcWallStandardCase": "metal",
         "IfcWindow": "glass",
+        "IfcPlate": "glass", // Not true, you need to check the material here.
         "IfcSpace": "invisible",
 };
 IFCMaterials.get = function(space) {
