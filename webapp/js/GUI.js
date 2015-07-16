@@ -81,6 +81,7 @@ GUI.prototype.initializePreview = function() {
         $("#preview-canvas").attr("width", w);
         $("#preview-canvas").attr("height", h);
         that.preview.initHardware();
+        that.preview.invalidate();
     };
     this.preview.refreshSizes();
 }
@@ -92,7 +93,7 @@ GUI.prototype.handleWindowSizeChanged = function() {
     setTimeout(function(){
         that.preview.refreshSizes();
         that.stats.refreshGraph();
-    }, 100); // Artificial timeout because the layout plugin needs to update itself.
+    }, 10); // Artificial timeout because the layout plugin needs to update itself.
 }
 
 GUI.prototype.generateTreeHTML = function(tree) {
