@@ -7,7 +7,7 @@
 *   - A maximum of simultaneous requests to prevent the errors from happening in the first place.
 */
 
-var MAX_SIMULTANEOUS_AJAX_REQUESTS = 100;
+var MAX_SIMULTANEOUS_AJAX_REQUESTS = 50;
 
 var IV = {
     INV_MTLS: 2,
@@ -19,11 +19,12 @@ var IV = {
 
 function MeshSheets() {
     this.sheets = {}
+    this.inQueue = 0;
+    this.complete = false;
 };
 MeshSheets.prototype.add = function(sheet) {
     if(!sheet.length) sheet.length = 1; /*Default value for length*/
     sheet.request = null;
-    sheet.objects = [];
     this.sheets[sheet.ref] = sheet;
     return sheet;
 };
@@ -31,15 +32,73 @@ MeshSheets.prototype.get = function(sheet) {
     return this.sheets[sheet.ref];
 };
 MeshSheets.prototype.remove = function(sheet) {
-    delete this.sheets[sheet.ref].objects;
     delete this.sheets[sheet.ref];
 };
+MeshSheets.prototype.loadAll = function(space) {
+    var complete = true
+    for(var i in this.sheets) {
+        var sheet = this.sheets[i]
+        if (this.inQueue >= MAX_SIMULTANEOUS_AJAX_REQUESTS)
+            return; /* Don't hit the max! */
+
+        if (sheet.request)
+            continue; // Answer is on it's way!
+
+        var url = sheet.ref;
+        if(space.path)
+            url = space.path + url;
+        var r = CreateRequest(url);
+        if (r) {
+            sheet.request = r;
+            r.meshSheet = sheet;
+            this.inQueue++;
+            r.ivspace = space;
+            loadMeshSheet(r);
+            r.send();
+            complete = false
+        }
+    }
+
+    this.complete = complete && this.inQueue == 0;
+};
+
+function loadMeshSheet(request) {
+    request.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var all_data = JSON.parse(this.responseText);
+            if(all_data.constructor !== Array)
+                all_data = [all_data];
+            for(var i in all_data) {
+                var data = all_data[i];
+                var ivobject = new mesh3d(this.ivspace.gl);
+                ivobject.initialize(this.ivspace, data);
+                if(data.guid && this.ivspace.objects3d[data.guid]) // Link with the node3d object
+                    this.ivspace.objects3d[data.guid].setObject(ivobject);
+                this.ivspace.onMeshLoaded(ivobject);
+            }
+            this.ivspace.meshSheets.remove(this.meshSheet);
+
+            this.ivspace.meshSheets.inQueue--;
+            if (!this.ivspace.meshSheets.inQueue) {
+                var w = this.window;
+                if (w && w.onMeshesReady) w.onMeshesReady(w, this);
+            }
+        }
+    };
+
+    request.onerror = function() {
+        /*If there is an error, we'll try again later.*/
+        this.meshSheet.request = null;
+        this.ivspace.meshSheets.inQueue--;
+    };
+}
 
 function space3d(view, gl) {
     this.cfgTextures = true;
     this.gl = gl;
     this.window = view;
     this.root = null;
+    this.objects3d = {};
     this.view = null;
     this.materials = [];
     this.projectionTM = mat4.create();
@@ -55,7 +114,6 @@ function space3d(view, gl) {
     this.post = [];
     this.clrSelection = [1, 0, 0];
     this.rmode = 0;
-    this.meshSheetsInQueue = 0;
     this.meshSheets = new MeshSheets();
     this.rmodes = [{
         "f": true,
@@ -303,13 +361,12 @@ space3d.prototype.load = function(data) {
                 m = s.meshes,
                 i, j;
             var d = {
-                objects: [],
                 materials: [],
                 space: this
             };
             if (s.materials) {
                 if(s.materials == "IFC") {
-                    d.materials = IFCMaterials.get(this);
+                    this.materials = d.materials = IFCMaterials.get(this);
                 }
                 else
                     for (i = 0; i < s.materials.length; i++) {
@@ -321,12 +378,6 @@ space3d.prototype.load = function(data) {
             if (m)
                 for (i = 0; i < m.length; i++) {
                     meshSheet = this.meshSheets.add(m[i]);
-                    for (j = 0; j < m[i].length; j++) {
-                        var obj = new mesh3d(this.gl);
-                        obj.meshSheet = meshSheet;
-                        d.objects.push(obj);
-                        meshSheet.objects.push(obj)
-                    }
                 }
             if (s.root) {
                 if (!this.root) this.root = new node3d();
@@ -411,6 +462,9 @@ space3d.prototype.updatePrjTM = function(tm) {
 };
 space3d.prototype.render = function(tm) {
     if (this.root) {
+        if(!this.meshSheets.complete)
+            this.meshSheets.loadAll(this);
+
         var gl = this.gl;
         gl.cullFace(gl.BACK);
         var tmw = mat4.create();
@@ -539,23 +593,25 @@ node3d.prototype.setObject = function(obj) {
         if (obj) obj.ref++;
     }
 }
+node3d.prototype.setMaterialInfo = function(space, info) {
+    if(space.materials.get) {
+        this.material = space.materials.get(info.className);
+    }
+}
 node3d.prototype.load = function(d, info) {
     var i, j;
+    if (d.guid !== undefined) {
+        info.space.objects3d[d.guid] = this;
+    }
     if (d.name !== undefined) this.name = d.name;
     if (d.meta !== undefined) this.meta = d.meta;
-    if (d.meshSheet !== undefined) this.meshSheet = d.meshSheet;
     if (d.camera !== undefined) this.camera = d.camera;
-    if (d.object != undefined) this.setObject(info.objects[d.object]);
-    if(d.mtl == undefined && d.class != undefined) {
-        d.mtl = d.class;
-    }
-    if (d.mtl != undefined) {
-        if(info.materials.get)
-            this.material = info.materials.get(d.mtl);
-        else
-            this.material = info.materials[d.mtl];
-        if (this.material && this.material.bump && this.object) this.object.bump = true;
-    }
+    if(info.materials.get)
+        this.material = info.materials.get(d.mtl);
+    else
+        this.material = info.materials[d.mtl];
+    if (this.material && this.material.bump && this.object) this.object.bump = true;
+
     if (d.s != undefined) this.state = d.s;
     if (d.t != undefined) this.type = d.t;
     if (d.tm) {
@@ -582,31 +638,8 @@ node3d.prototype.load = function(d, info) {
 function nodeRender(node, tm, space, state) {
     var o = node.object;
     if (o) {
-        if (o.meshSheet) {
-            if (space.meshSheetsInQueue >= MAX_SIMULTANEOUS_AJAX_REQUESTS)
-                return true; /* Don't hit the max! */
-            if (o.meshSheet.request){
-                delete o.meshSheet; /* Answer is on it's way! */
-            }
-            else {
-                var url = o.meshSheet.ref;
-                if(space.path)
-                    url = space.path + url;
-                var r = CreateRequest(url);
-                if (r) {
-                    o.meshSheet.request = r;
-                    r.meshSheet = o.meshSheet;
-                    space.meshSheetsInQueue++;
-                    r.ivspace = space;
-                    loadMeshSheet(r);
-                    r.send();
-                    delete o.meshSheet;
-                }
-            }
-        } else {
-            if (state & 4 && space.cfgSelZOffset) state |= 0x20000;
-            if (o.boxMin) space.toRenderQueue(tm, node, state);
-        }
+        if (state & 4 && space.cfgSelZOffset) state |= 0x20000;
+        if (o.boxMin) space.toRenderQueue(tm, node, state);
     }
     return true;
 }
@@ -641,35 +674,6 @@ function ivBufferI(gl, v) {
     b.itemSize = 1;
     b.numItems = v.length;
     return b;
-}
-
-function loadMeshSheet(request) {
-    request.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var data = JSON.parse(this.responseText);
-            if(data.constructor !== Array)
-                data = [data];
-            for(var i in this.meshSheet.objects) {
-                ivobject = this.meshSheet.objects[i];
-                ivobject.initialize(this.ivspace, data[i]);
-                this.ivspace.onMeshLoaded(ivobject);
-            }
-            this.ivspace.meshSheets.remove(this.meshSheet);
-
-            this.ivspace.meshSheetsInQueue--;
-            if (!this.ivspace.meshSheetsInQueue) {
-                var w = this.window;
-                if (w && w.onMeshesReady) w.onMeshesReady(w, this);
-            }
-        }
-    };
-
-    request.onerror = function() {
-        /*If there is an error, we'll try again later.*/
-        this.meshSheet.request = null;
-        this.meshSheet.objects[0].meshSheet = this.meshSheet; /*Set it back on at least 1 object!*/
-        this.ivspace.meshSheetsInQueue--;
-    };
 }
 
 function ivwindow3d(canvas, file, color, path) {

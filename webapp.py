@@ -5,6 +5,8 @@ import time
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from ModelBuilder import ModelBuilder
 import pickle
+import sqlite3
+import json
 
 db = None;
 def GetUniqueProjectId():
@@ -33,6 +35,8 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 
 		if url.path == "/project":
 			self.show_project(params)
+		if url.path == "/project/info":
+			self.get_project_info(params)
 		else: # Default
 			SimpleHTTPRequestHandler.do_GET(self);
 
@@ -51,6 +55,53 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			self.send_header("Content-length", len(response))
 			self.end_headers()
 			self.wfile.write(response)
+
+	def get_project_info(self, query):
+		print "Requesting /project/info with", query
+		if 'id' not in query or 'get' not in query:
+			self.send_response(302)
+			self.send_header('Location', '/')
+			self.end_headers()
+			return;
+
+		if query['get'][0] == 'tree':
+			conn = sqlite3.connect('../database.db3')
+			conn.text_factory = str
+			c = conn.cursor()
+			c.execute('SELECT guid,name FROM products WHERE project_id=?', (query['id'][0],))
+			
+			data = []
+			for row in c.fetchall():
+				data.append([row[0], row[1]])
+
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(json.dumps(data, encoding='latin1'))
+			return;
+		elif query['get'][0] == 'materials':
+			conn = sqlite3.connect('../database.db3')
+			conn.text_factory = str
+			c = conn.cursor()
+			c.execute('SELECT guid,className FROM products WHERE project_id=?', (query['id'][0],))
+			
+			data = []
+			for row in c.fetchall():
+				data.append({'guid': row[0], 'className': row[1]})
+
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(json.dumps(data, encoding='latin1'))
+			return;
+
+	def get_tree(self, query):
+		print "Requesting /project/tree with", query
+		if 'id' not in query:
+			self.send_response(302)
+			self.send_header('Location', '/')
+			self.end_headers()
+			return;
 
 	def do_POST(self):
 		url = urlparse.urlparse(self.path)

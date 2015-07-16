@@ -38,12 +38,39 @@ GUI.prototype.initialize = function(projectId) {
             },
             success: function(){
                 that.initializePreview();
+                that.getProjectInfo();
             }
         })
     };
 
     setTimeout(checkPreviewData, POOLING_INTERVAL);
 };
+
+GUI.prototype.getProjectInfo = function() {
+    var that = this;
+    $.ajax("/project/info?get=tree&id="+this.projectId, {
+        error: function(){
+            console.log("Error while loading project tree!");
+        },
+        success: function(data){
+            that.displayTree(JSON.parse(data));
+        }
+    })
+    $.ajax("/project/info?get=materials&id="+this.projectId, {
+        error: function(){
+            console.log("Error while loading project materials!");
+        },
+        success: function(data){
+            data = JSON.parse(data);
+            var space = that.preview.space;
+            for(var i in data) {
+                var obj = space.objects3d[data[i].guid];
+                if(obj)
+                    obj.setMaterialInfo(space, data[i])
+            }
+        }
+    })
+}
 
 GUI.prototype.initializePreview = function() {
     var that = this;

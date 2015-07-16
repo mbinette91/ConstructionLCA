@@ -18,8 +18,9 @@ class ModelBuilder:
 		os.mkdir(temp_output_path);
 
 		# Time to read the Ifc file!
+		ifc_file_path = TEMP + "/IFC_" + model_id + ".ifc";
 		MEGABYTE = 1024 * 1024;
-		subprocess.call('"'+ROOT+'/bin/IfcReader.exe" "'+(TEMP + "/IFC_" + model_id + ".ifc")+'" "'+temp_output_path+'" "'+ROOT+'/database.db3" '+str(5 * MEGABYTE))
+		subprocess.call('"'+ROOT+'/bin/IfcReader.exe" "'+ifc_file_path+'" "'+temp_output_path+'" "'+ROOT+'/database.db3" '+str(5 * MEGABYTE)+" "+str(model_id))
 		shutil.move(temp_output_path, ROOT + "/webapp/data/");
 
 		# Keep the IFC file (?)
