@@ -1,13 +1,6 @@
 /*
 * Reversed from http://www.finalmesh.com/webglmore.htm
-*
-* Added:
-*   - MeshSheet system (for cases in between the single-json-file and the one-json-file-per-product)
-*   - Error handling for failed AJAX queries (e.g. too many queries)
-*   - A maximum of simultaneous requests to prevent the errors from happening in the first place.
 */
-
-var MAX_SIMULTANEOUS_AJAX_REQUESTS = 50;
 
 var IV = {
     INV_MTLS: 2,
@@ -17,95 +10,15 @@ var IV = {
     R_Z_OFFSET: 0x30000,
 };
 
-function MeshSheets() {
-    this.sheets = {}
-    this.inQueue = 0;
-    this.complete = false;
-};
-MeshSheets.prototype.add = function(sheet) {
-    if(!sheet.length) sheet.length = 1; /*Default value for length*/
-    sheet.request = null;
-    this.sheets[sheet.ref] = sheet;
-    return sheet;
-};
-MeshSheets.prototype.get = function(sheet) {
-    return this.sheets[sheet.ref];
-};
-MeshSheets.prototype.remove = function(sheet) {
-    delete this.sheets[sheet.ref];
-};
-MeshSheets.prototype.loadAll = function(space) {
-    var complete = true
-    for(var i in this.sheets) {
-        var sheet = this.sheets[i]
-        if (this.inQueue >= MAX_SIMULTANEOUS_AJAX_REQUESTS)
-            return; /* Don't hit the max! */
-
-        if (sheet.request)
-            continue; // Answer is on it's way!
-
-        var url = sheet.ref;
-        if(space.path)
-            url = space.path + url;
-        var r = CreateRequest(url);
-        if (r) {
-            sheet.request = r;
-            r.meshSheet = sheet;
-            this.inQueue++;
-            r.ivspace = space;
-            loadMeshSheet(r);
-            r.send();
-            complete = false
-        }
-    }
-
-    this.complete = complete && this.inQueue == 0;
-};
-
-function loadMeshSheet(request) {
-    request.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            var all_data = JSON.parse(this.responseText);
-            if(all_data.constructor !== Array)
-                all_data = [all_data];
-            for(var i in all_data) {
-                var data = all_data[i];
-                var ivobject = new mesh3d(this.ivspace.gl);
-                ivobject.initialize(this.ivspace, data);
-                if(data.guid && this.ivspace.objects3d[data.guid]) // Link with the node3d object
-                    this.ivspace.objects3d[data.guid].setObject(ivobject);
-                this.ivspace.onMeshLoaded(ivobject);
-            }
-            this.ivspace.meshSheets.remove(this.meshSheet);
-
-            this.ivspace.meshSheets.inQueue--;
-            if (!this.ivspace.meshSheets.inQueue) {
-                var w = this.window;
-                if (w && w.onMeshesReady) w.onMeshesReady(w, this);
-            }
-        }
-    };
-
-    request.onerror = function() {
-        /*If there is an error, we'll try again later.*/
-        this.meshSheet.request = null;
-        this.ivspace.meshSheets.inQueue--;
-    };
-}
-
 function space3d(view, gl) {
     this.cfgTextures = true;
     this.gl = gl;
     this.window = view;
     this.root = null;
-    this.objects3d = {};
     this.view = null;
-    this.materials = [];
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
     this.cfgDbl = true;
-    this.cfgKeepMeshData = 3;
-    this.cfgDefMtl = null;
     this.cfgSelZOffset = false;
     this.textures = [];
     this.lights = 0;
@@ -114,7 +27,9 @@ function space3d(view, gl) {
     this.post = [];
     this.clrSelection = [1, 0, 0];
     this.rmode = 0;
+    this.objects3d = {};
     this.meshSheets = new MeshSheets();
+    this.materials = IFCMaterials.get(this);
     this.rmodes = [{
         "f": true,
         "n": true,
@@ -350,7 +265,6 @@ space3d.prototype.getTexture = function(str, type) {
 };
 space3d.prototype.newMaterial = function(n) {
     var mtl = new material3d(this);
-    this.materials.push(mtl);
     if (n) mtl.name = name;
     return mtl;
 };
@@ -360,28 +274,14 @@ space3d.prototype.load = function(data) {
             var s = data.space,
                 m = s.meshes,
                 i, j;
-            var d = {
-                materials: [],
-                space: this
-            };
-            if (s.materials) {
-                if(s.materials == "IFC") {
-                    this.materials = d.materials = IFCMaterials.get(this);
-                }
-                else
-                    for (i = 0; i < s.materials.length; i++) {
-                        var mtl = this.newMaterial();
-                        mtl.load(s.materials[i]);
-                        d.materials.push(mtl);
-                    }
-            }
+
             if (m)
                 for (i = 0; i < m.length; i++) {
                     meshSheet = this.meshSheets.add(m[i]);
                 }
             if (s.root) {
                 if (!this.root) this.root = new node3d();
-                this.root.load(s.root, d);
+                this.root.load(s.root, this);
             }
             if (s.view) this.view = s.view;
             if (s.lights) {
@@ -485,7 +385,9 @@ space3d.prototype.render = function(tm) {
     }
 };
 space3d.prototype.toRenderQueue = function(atm, node, state) {
-    var mtl = this.cfgDefMtl ? this.cfgDefMtl : node.material;
+    var mtl = node.material;
+    if(!mtl)
+        return; // Don't render elements with no materials
     var rmode = this.rmodes[(state & 0xff00) >> 8];
     if (rmode.mtl) mtl = rmode.mtl;
     var item = {
@@ -590,27 +492,26 @@ node3d.prototype.setObject = function(obj) {
     if (this.object != obj) {
         if (this.object) this.object.release();
         this.object = obj;
+        this.object.bump = (this.material && this.material.bump && this.object);
         if (obj) obj.ref++;
     }
 }
-node3d.prototype.setMaterialInfo = function(space, info) {
-    if(space.materials.get) {
-        this.material = space.materials.get(info.className);
-    }
+node3d.prototype.setMaterial = function(space, material) {
+    this.material = material;
+    if(this.object)
+        this.object.bump = (material && material.bump);
+    space.invalidate();
 }
-node3d.prototype.load = function(d, info) {
+node3d.prototype.load = function(d, space) {
     var i, j;
     if (d.guid !== undefined) {
-        info.space.objects3d[d.guid] = this;
+        space.objects3d[d.guid] = this;
     }
     if (d.name !== undefined) this.name = d.name;
     if (d.meta !== undefined) this.meta = d.meta;
     if (d.camera !== undefined) this.camera = d.camera;
-    if(info.materials.get)
-        this.material = info.materials.get(d.mtl);
-    else
-        this.material = info.materials[d.mtl];
-    if (this.material && this.material.bump && this.object) this.object.bump = true;
+
+    this.setMaterial(space, space.materials.search('default'));
 
     if (d.s != undefined) this.state = d.s;
     if (d.t != undefined) this.type = d.t;
@@ -630,7 +531,7 @@ node3d.prototype.load = function(d, info) {
         var n = d.i;
         for (i = 0; i < n.length; i++) {
             var node = this.newNode();
-            node.load(n[i], info);
+            node.load(n[i], space);
         }
     }
 };
@@ -676,9 +577,8 @@ function ivBufferI(gl, v) {
     return b;
 }
 
-function ivwindow3d(canvas, file, color, path) {
+function PreviewModule(canvas, file, color, path) {
     this.canvas = canvas;
-    canvas.ivwindow3d = this;
     this.mvMatrix = mat4.create();
     this.mouseCaptured = false;
     this.mouseCancelPopup = false;
@@ -709,6 +609,15 @@ function ivwindow3d(canvas, file, color, path) {
     else this.getTickCount = getTickCountLegacy;
 }
 
+PreviewModule.prototype.setMaterialInformation = function(data) {
+    var space = this.space;
+    for(var i in data) {
+        var obj = space.objects3d[data[i].guid];
+        if(obj)
+            obj.setMaterial(space, space.materials.search(data[i]));
+    }
+}
+
 function getTickCountNew() {
     return window.performance.now();
 }
@@ -726,105 +635,11 @@ function indexOf(a, b) {
     }
     return -1;
 }
-ivwindow3d.prototype.initHandlers = function() {
-    var w = this;
-    var i = {
-        "move": function(event) {
-            return w._onMouseMove(event);
-        },
-        "down": function(event) {
-            return w.onMouseDown(event, false);
-        },
-        "up": function(event) {
-            return w.onMouseUp(event, false);
-        },
-        "dbl": function(event) {
-            return w._onDblClick(event);
-        },
-        "touchstart": function(event) {
-            return w.onMouseDown(event, true);
-        },
-        "touchcancel": function(event) {
-            return w.onTouchCancel(event);
-        },
-        "touchend": function(event) {
-            return w.onMouseUp(event);
-        },
-        "touchmove": function(event) {
-            return w.onTouchMove(event);
-        },
-        "menu": function(event) {
-            return w._onContextMenu(event);
-        },
-        "wheel": function(event) {
-            w.onMouseWheel(event);
-        },
-        "a": function() {
-            w.animate();
-        }
-    };
-    this.input = i;
-}
-ivwindow3d.prototype.initEvents = function() {
-    var w = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel",
-        c = this.canvas,
-        i = this.input;
-    this.setEvent(c, w, i.wheel);
-    this.setEvent(c, "mousedown", i.down);
-    this.setEvent(c, "mousemove", i.move);
-    this.setEvent(c, "dblclick", i.dbl);
-    this.setEvent(c, "contextmenu", i.menu);
-    this.setEvent(c, "touchstart", i.touchstart);
-    this.setEvent(c, "selectstart", function() {
-        return false;
-    });
-}
-ivwindow3d.prototype.releaseCapture = function() {
-    if (this.mouseCaptured) {
-        var e = this.canvas,
-            i = this.input;
-        if (e.releaseCapture) e.releaseCapture();
-        else {
-            e = document;
-            this.delEvent(e, "mousemove", i.move);
-            this.delEvent(e, "contextmenu", i.menu);
-        }
-        this.delEvent(e, "mouseup", i.up);
-        this.delEvent(e, "touchmove", i.touchmove);
-        this.delEvent(e, "touchend", i.touchend);
-        this.delEvent(e, "touchcancel", i.touchcancel);
-        this.mouseCaptured = false;
-    }
-}
-ivwindow3d.prototype.setCapture = function() {
-    if (!this.mouseCaptured) {
-        var e = this.canvas,
-            i = this.input;
-        if (e.setCapture) e.setCapture();
-        else {
-            e = document;
-            this.setEvent(e, "mousemove", i.move);
-            this.setEvent(e, "contextmenu", i.menu);
-        }
-        this.setEvent(e, "mouseup", i.up);
-        this.setEvent(e, "touchmove", i.touchmove);
-        this.setEvent(e, "touchend", i.touchend);
-        this.setEvent(e, "touchcancel", i.touchcancel);
-        this.mouseCaptured = true;
-    }
-}
-ivwindow3d.prototype.delEvent = function(d, e, f) {
-    if (d.detachEvent) d.detachEvent("on" + e, f);
-    else if (d.removeEventListener) d.removeEventListener(e, f);
-}
-ivwindow3d.prototype.setEvent = function(d, e, f) {
-    if (d.attachEvent) d.attachEvent("on" + e, f);
-    else if (d.addEventListener) d.addEventListener(e, f);
-}
-ivwindow3d.prototype.getWindow = function() {
+
+PreviewModule.prototype.getWindow = function() {
     return this;
 }
-ivwindow3d.prototype.initHardware = function() {
+PreviewModule.prototype.initHardware = function() {
     var n = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     for (var i = 0; i < n.length; i++) {
         try {
@@ -876,12 +691,12 @@ viewInfo.prototype.getViewVectorN = function(v) {
 viewInfo.prototype.compare = function(v) {
     return (vec3.compare(this.from, v.from, 1e-6) && vec3.compare(this.to, v.to, 1e-6) && vec3.compare(this.up, v.up, 1e-6));
 }
-ivwindow3d.prototype.getView = function(i) {
+PreviewModule.prototype.getView = function(i) {
     if (i) i.update(this);
     else i = new viewInfo(this);
     return i;
 }
-ivwindow3d.prototype.setViewImp = function(v) {
+PreviewModule.prototype.setViewImp = function(v) {
     if (v.fov) this.fov = v.fov;
     vec3.cpy(this.viewFrom, v.from || v.org);
     vec3.cpy(this.viewTo, v.to || v.target);
@@ -901,12 +716,12 @@ ivwindow3d.prototype.setViewImp = function(v) {
         vec3.add(this.viewFrom, a1, this.viewUp);
     }
 }
-ivwindow3d.prototype.setDefView = function() {
+PreviewModule.prototype.setDefView = function() {
     this.removeAnimationType("spin");
     this.setViewImp(this.space.view);
     this.invalidate(IV.INV_VERSION);
 }
-ivwindow3d.prototype.loadSpace = function(file, path) {
+PreviewModule.prototype.loadSpace = function(file, path) {
     this.space = new space3d(this, this.gl);
     if (path != undefined) this.space.path = path;
     var r = CreateRequest(file, path);
@@ -920,326 +735,34 @@ ivwindow3d.prototype.loadSpace = function(file, path) {
     }
     r.send();
 }
-ivwindow3d.prototype.getDoubleSided = function() {
+PreviewModule.prototype.getDoubleSided = function() {
     return this.space.cfgDbl;
 }
-ivwindow3d.prototype.setDoubleSided = function(b) {
+PreviewModule.prototype.setDoubleSided = function(b) {
     if (this.space.cfgDbl != b) {
         var s = this.space;
         s.cfgDbl = b;
         s.invalidate(IV.INV_MTLS);
     }
 }
-ivwindow3d.prototype.setMaterials = function(b) {
-    var s = this.space;
-    if (b) {
-        if (s.cfgDefMtl) {
-            s.cfgDefMtl = null;
-            this.invalidate();
-        }
-    } else {
-        if (!s.cfgDefMtl) {
-            var m = new material3d(s);
-            m.load({
-                "diffuse": 0xcccccc,
-                "specular": 0x808080,
-                "ambient": 0x050505,
-                "phong": 25.6
-            });
-            s.cfgDefMtl = m;
-            this.invalidate();
-        };
-    }
-};
-ivwindow3d.prototype.getTextures = function() {
+PreviewModule.prototype.getTextures = function() {
     return this.space.cfgTextures;
 }
-ivwindow3d.prototype.setTextures = function(b) {
+PreviewModule.prototype.setTextures = function(b) {
     if (this.space.cfgTextures != b) {
         this.space.cfgTextures = b;
         this.invalidate();
     }
 }
-ivwindow3d.prototype.setLights = function(l) {
+PreviewModule.prototype.setLights = function(l) {
     this.space.lights = l;
     this.invalidate(IV.INV_MTLS);
 }
-ivwindow3d.prototype.handleObjSelect = function(x, y, event, bDown) {
-    if (!bDown) {
-        this.mouseMoved = false;
-        var ray = this.getRay(x, y);
-        var h = this.hitTest(ray);
-        var n = h ? h.node : null;
-        var bCtrl = (event.ctrlKey == 1);
-        var bSelect = true;
-        if (bCtrl && n && n.state & 4) bSelect = false;
-        this.space.Select(n, bSelect, bCtrl);
-    }
-}
-ivwindow3d.prototype.onMouseUp = function(event, touch) {
-    var a = this.last;
-    if (a) {
-        if (this.autoRotate) {
-            var dt = this.getTickCount() - a.t;
-            if (dt < 200) this.addAnimation(new animationSpin(this, dt));
-        }
-        this.last = null;
-    }
-    var e = event;
-    if (touch) {
-        if (event.touches.length) e = event.touches[0];
-        else e = null;
-    }
-    var p = this.getClientPoint(e, touch);
-    var flags = 3;
-    if (this.handler) {
-        flags = this.handler.onMouseUp(p, event);
-        if (flags & 4) this.handler = 0;
-    }
-    if ((!this.mouseMoved) && (flags & 1)) this.handleObjSelect(this.LX, this.LY, event, false);
-    this.releaseCapture();
-};
-ivwindow3d.prototype.getTouchDistance = function(e) {
-    var dx = e.touches[0].clientX - e.touches[1].clientX,
-        dy = e.touches[0].clientY - e.touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-ivwindow3d.prototype.getClientPoint = function(e, touch) {
-    var r = this.canvas.getBoundingClientRect();
-    var x, y;
-    if (e) {
-        if (touch && e.touches && e.touches.length) e = e.touches[0];
-        x = e.clientX - r.left;
-        y = e.clientY - r.top;
-    } else {
-        x = this.LX;
-        y = this.LY;
-    }
-    return {
-        "x": x,
-        "y": y,
-        "r": r
-    }
-}
-ivwindow3d.prototype.decodeButtons = function(e, bt) {
-    var btn = 0;
-    if (bt && e.touches != undefined) {
-        if (e.touches.length >= 3) return 4;
-        return 1;
-    }
-    if (e.buttons == undefined) {
-        if (e.which == 1) btn = 1;
-        else
-        if (e.which == 2) btn = 4;
-        else
-        if (e.which == 3) btn = 2;
-        else btn = 1;
-    } else btn = e.buttons;
-    return btn;
-}
-ivwindow3d.prototype.pd = function(e) {
-    if (e && e.preventDefault) e.preventDefault();
-}
-ivwindow3d.prototype._onContextMenu = function(event) {
-    this.pd(event);
-    if (this.mouseCancelPopup) {
-        this.mouseCancelPopup = false;
-        return false;
-    }
-    if (this.onContextMenu) this.onContextMenu(event);
-    return true;
-}
-ivwindow3d.prototype._onDblClick = function(event) {
-    if (this.onDblClick) this.onDblClick(event, false);
-    this.pd(event);
-    event.stopPropagation();
-    return true;
-}
-ivwindow3d.prototype.onTouchMove = function(event) {
-    this.onMouseMove(event, true);
-    this.pd(event);
-    return false;
-}
-ivwindow3d.prototype.onTouchCancel = function(event) {
-    this.onMouseUp(event, true);
-    if (event.cancelable) this.pd(event);
-}
-ivwindow3d.prototype._onMouseMove = function(event) {
-    if (this.mouseCaptured) {
-        var b = this.decodeButtons(event, false);
-        if (b) this.onMouseMove(event, false);
-        else this.onMouseUp(event, false);
-        this.pd(event);
-        event.stopPropagation();
-        return true;
-    } else {
-        if (this.onMouseHover) this.onMouseHover(event);
-    }
-    return false;
-}
-ivwindow3d.prototype.onMouseDown = function(event, touch) {
-    this.setCapture();
-    this.removeAnimationType("spin");
-    this.last = {
-        x: 0,
-        y: 0
-    };
-    var e = event;
-    this.lastTouchDistance = -1;
-    if (touch) {
-        e = event.touches[0];
-        if (event.touches.length == 2) this.lastTouchDistance = this.getTouchDistance(event);
-    }
-    var p = this.getClientPoint(e, touch);
-    this.LX = p.x;
-    this.LY = p.y;
-    this.mouseMoved = false;
-    p.b = this.decodeButtons(event, touch);
-    this.pd(event);
-}
-ivwindow3d.prototype.onMouseMove = function(event, touch) {
-    var e = event;
-    var p = this.getClientPoint(e, touch);
-    if (touch) {
-        e = event.touches[0];
-        if (event.touches.length == 2) {
-            var d = this.getTouchDistance(event);
-            if (this.lastTouchDistance != d) {
-                if (this.lastTouchDistance > 0) {
-                    var _d = this.lastTouchDistance - d;
-                    this.doFOV(_d, _d);
-                    this.invalidate(IV.INV_VERSION);
-                }
-                this.lastTouchDistance = d;
-                this.mouseMoved = true;
-                this.LX = p.x;
-                this.LY = p.y;
-            } else this.lastTouchDistance - 1;
-            return;
-        }
-    }
-    var dX = p.x - this.LX,
-        dY = p.y - this.LY;
-    if (this.mouseMoved || Math.abs(dX) || Math.abs(dY)) {
-        var b = p.b = this.decodeButtons(event, touch);
-        var invF = 0;
-        if (this.cameraMode && b == 1) {
-            if (this.cameraMode == 1) b = 2;
-            else
-            if (this.cameraMode == 2) b = 4;
-        }
-        if (b & 4) {
-            this.doPan(dX, dY);
-            invF = IV.INV_VERSION;
-        } else
-        if (b & 1) {
-            var a = this.last;
-            if (a) {
-                a.x = dX + a.x / 2;
-                a.y = dY + a.y / 2;
-                var t = this.getTickCount();
-                a.dt = t - a.t;
-                a.t = t;
-            }
-            this.doOrbit(dX, dY);
-            invF = IV.INV_VERSION;
-        } else
-        if (b & 2) {
-            if (!this.doFOV(dX, dY)) return;
-            invF = IV.INV_VERSION;
-            this.mouseCancelPopup = true;
-        }
-        this.invalidate();
-        this.LX = p.x;
-        this.LY = p.y;
-        this.mouseMoved = true;
-    }
-}
-ivwindow3d.prototype.onMouseWheel = function(event) {
-    var d;
-    if (event.wheelDelta != undefined) d = event.wheelDelta / -10;
-    else
-    if (event.detail != undefined) {
-        d = event.detail;
-        if (d > 10) d = 10;
-        else if (d < -10) d = -10;
-        d *= 4;
-    }
-    this.doDolly(0, d);
-    this.invalidate(IV.INV_VERSION);
-    this.pd(event);
-}
-ivwindow3d.prototype.doPan = function(dX, dY) {
-    var v = this.getView();
-    var gl = this.gl;
-    var x0 = gl.viewportWidth / 2,
-        y0 = gl.viewportHeight / 2;
-    var r0 = this.getRay(x0, y0);
-    var r1 = this.getRay(x0 - dX, y0 - dY);
-    var d = [r1[3] - r0[3], r1[4] - r0[4], r1[5] - r0[5]];
-    vec3.add_ip(v.from, d);
-    vec3.add_ip(v.up, d);
-    vec3.add_ip(v.to, d);
-    this.setViewImp(v);
-}
-ivwindow3d.prototype.doOrbit = function(dX, dY) {
-    var v = this.getView(),
-        tm = [];
-    var _u = v.getUpVector();
-    if (dX && this.orbitMode) {
-        mat4.identity(tm);
-        mat4.rotateAxisOrg(tm, v.to, _u, -dX / 200.0);
-        mat4.mulPoint(tm, v.from);
-        mat4.mulPoint(tm, v.up);
-        dX = 0;
-    }
-    if (dY) {
-        vec3.normalize(_u);
-        var _d = v.getViewVectorN();
-        var _axis = vec3.cross(_d, _u, _axis);
-        mat4.identity(tm);
-        mat4.rotateAxisOrg(tm, v.to, _axis, -dY / 200.0);
-        mat4.mulPoint(tm, v.from);
-        mat4.mulPoint(tm, v.up);
-    }
-    if (dX) {
-        _u = [0, 0, 1];
-        mat4.identity(tm);
-        mat4.rotateAxisOrg(tm, v.to, _u, -dX / 200.0);
-        mat4.mulPoint(tm, v.from);
-        mat4.mulPoint(tm, v.up);
-    }
-    this.setViewImp(v);
-}
-ivwindow3d.prototype.doDolly = function(dX, dY) {
-    var v = this.getView();
-    var dir = vec3.sub_r(v.from, v.to);
-    var l = vec3.length(dir);
-    var _l = l + l * dY / 100;
-    if (_l < 1e-6) return false;
-    vec3.scale_ip(dir, _l / l);
-    var _new = vec3.add_r(v.to, dir);
-    var delta = vec3.sub_r(_new, v.from);
-    vec3.add_ip(v.from, delta);
-    vec3.add_ip(v.up, delta);
-    this.setViewImp(v);
-    return true;
-}
-ivwindow3d.prototype.doFOV = function(dX, dY) {
-    var fov = this.fov + dY / 8;
-    if (fov >= 175) fov = 175;
-    else
-    if (fov <= 1) fov = 1;
-    if (fov != this.fov) {
-        this.fov = fov;
-        return true;
-    }
-    return false;
-}
-ivwindow3d.prototype.getUpVector = function() {
+
+PreviewModule.prototype.getUpVector = function() {
     return vec3.sub_r(this.viewUp, this.viewFrom);
 }
-ivwindow3d.prototype.getRay = function(x, y, ray) {
+PreviewModule.prototype.getRay = function(x, y, ray) {
     var gl = this.gl,
         w = gl.viewportWidth,
         h = gl.viewportHeight;
@@ -1261,10 +784,10 @@ ivwindow3d.prototype.getRay = function(x, y, ray) {
     var ray = [p1[0], p1[1], p1[2], p2[0] + up[0] + x[0], p2[1] + up[1] + x[1], p2[2] + up[2] + x[2]];
     return ray;
 }
-ivwindow3d.prototype.updateMVTM = function() {
+PreviewModule.prototype.updateMVTM = function() {
     mat4.lookAt(this.viewFrom, this.viewTo, this.getUpVector(), this.mvMatrix);
 }
-ivwindow3d.prototype.drawScene = function() {
+PreviewModule.prototype.drawScene = function() {
     var gl = this.gl;
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     if (this.space.bk == undefined || (!this.space.drawBk())) {
@@ -1279,7 +802,7 @@ ivwindow3d.prototype.drawScene = function() {
     this.space.render(this.mvMatrix);
     this.timer = false;
 }
-ivwindow3d.prototype.invalidate = function(f) {
+PreviewModule.prototype.invalidate = function(f) {
     if (f !== undefined) {
         if (f & IV.INV_VERSION) this.vpVersion++;
         if (f & IV.INV_MTLS && this.space.materials) {
@@ -1291,112 +814,6 @@ ivwindow3d.prototype.invalidate = function(f) {
     this.timer = true;
     setTimeout(this.drawScene.bind(this), 1);
 }
-ivwindow3d.prototype.animate = function() {
-    var j = 0,
-        rez = 0,
-        uFlags = 0,
-        inv = false,
-        bKill = true;
-    var time = this.getTickCount();
-    var _i = this.transitions;
-    while (j < _i.length) {
-        var i = _i[j];
-        var bDel = false;
-        if (i.lastTime != time) {
-            if (i.duration) {
-                var a = (time - i.startTime) / i.duration;
-                if ((a >= 1.0) || (a < 0)) {
-                    a = 1.0;
-                    bDel = true;
-                }
-                rez = i.animate(a);
-            } else {
-                rez = i.animate(time - i.lastTime);
-                if (!(rez & 1)) bDel = true;
-            }
-            i.lastTime = time;
-        }
-        if (rez & 2) inv = true;
-        if (rez & 4) uFlags |= IV.INV_VERSION;
-        if (bDel) {
-            _i.splice(j, 1);
-            if (i.detach) i.detach(this);
-        } else j++;
-    }
-    if (inv) this.invalidate(uFlags);
-    if (!_i.length) {
-        clearInterval(this.transTimer);
-        this.transTimer = null;
-    }
-}
-ivwindow3d.prototype.getAnimation = function(type) {
-    var _i = this.transitions;
-    if (_i) {
-        for (var i = 0; i < _i.length; i++) {
-            var t = _i[i];
-            if (t.type && t.type == type) return i;
-        }
-    }
-    return -1;
-};
-ivwindow3d.prototype.removeAnimationType = function(type) {
-    var _i = this.transitions;
-    if (_i) {
-        for (var i = 0; i < _i.length; i++) {
-            var t = _i[i];
-            if (t.type && t.type == type) {
-                if (t.detach) t.detach(this);
-                _i.splice(i, 1);
-                return true;
-            }
-        }
-    }
-    return false;
-};
-ivwindow3d.prototype.removeAnimation = function(a) {
-    var _i = this.transitions;
-    if (_i) {
-        var i = indexOf(_i, a);
-        if (i > -1) {
-            if (a.detach) a.detach(this);
-            _i.splice(i, 1);
-            return true;
-        }
-    }
-    return false;
-}
-ivwindow3d.prototype.addAnimation = function(i) {
-    i.lastTime = this.getTickCount();
-    if (i.duration) i.startTime = i.lastTime;
-    if (!this.transitions) this.transitions = [];
-    this.transitions.push(i);
-    if (!this.transTimer) {
-        var w = this;
-        this.transTimer = setInterval(this.input.a, 10);
-    }
-};
-
-function animationSpin(wnd, t) {
-    this.type = "spin";
-    this.wnd = wnd;
-    var a = wnd.last;
-    var k = this.kf(a.dt);
-    this.x = a.x * k;
-    this.y = a.y * k;
-}
-animationSpin.prototype.kf = function(a) {
-    return Math.pow(0.82, a / 100);
-}
-animationSpin.prototype.animate = function(a) {
-    this.wnd.doOrbit(this.x, this.y);
-    var k = this.kf(a);
-    this.x *= k;
-    this.y *= k;
-    k = 1e-1;
-    if ((Math.abs(this.x) < k) && (Math.abs(this.y) < k)) return 6;
-    return 7;
-}
-
 
 /*Hit test stuff*/
 function BOXTRITEST(_min, _max, org, dir, tn, tf, c, x) {
@@ -1575,7 +992,7 @@ node3d.prototype.hitTest = function(tm, info) {
 function hitInfo_getWindow() {
     return this.space.window;
 }
-ivwindow3d.prototype.hitTest = function(ray) {
+PreviewModule.prototype.hitTest = function(ray) {
     if (this.space.root) {
         var hitInfo = {
             "space": this.space,

@@ -1,4 +1,8 @@
 
+function rgb(r, g, b){
+  return [r/127, g/127, b/127];
+}
+
 $.fn.exists = function(a){
     return this.length;
 };

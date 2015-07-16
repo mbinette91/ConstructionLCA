@@ -1,5 +1,6 @@
 /*
 * Contains utils classes for WebGL (vec3, mat3 and mat4)
+* Sources: Various functions from the WWW.
 */
 
 WebGL = {}

@@ -1,3 +1,4 @@
+
 function mesh3d(gl) {
     this.gl = gl;
     this.lineMode = false;
@@ -208,10 +209,12 @@ mesh3d.prototype.initialize = function(space, data) {
         var f = new Uint16Array(faces);
         this.setBuffer('f', ivBufferI(gl, f));
     }
-    if (space.cfgKeepMeshData & 1) this.faces = f;
-    if (space.cfgKeepMeshData & 2) this.points = v;
+    
+    this.faces = f;
+    this.points = v;
 };
 
+// Author: Mathieu Binette
 mesh3d.prototype.computeVertexNormals = function(space, data){
     var indicesCount = data.indices.length;
     var n = new Float32Array(indicesCount * 3); // Initialized to 0

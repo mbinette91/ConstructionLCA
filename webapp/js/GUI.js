@@ -62,19 +62,14 @@ GUI.prototype.getProjectInfo = function() {
         },
         success: function(data){
             data = JSON.parse(data);
-            var space = that.preview.space;
-            for(var i in data) {
-                var obj = space.objects3d[data[i].guid];
-                if(obj)
-                    obj.setMaterialInfo(space, data[i])
-            }
+            that.preview.setMaterialInformation(data);
         }
     })
 }
 
 GUI.prototype.initializePreview = function() {
     var that = this;
-    this.preview = new ivwindow3d(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
+    this.preview = new PreviewModule(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
     this.preview.refreshSizes = function() {
         var w = $("#section-container").width();
         var h = $("#section-container").height();
