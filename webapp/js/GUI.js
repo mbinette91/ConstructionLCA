@@ -165,7 +165,7 @@ GUI.prototype.handleTreeStatusChanged = function(e, data) {
 }
 
 GUI.prototype.handleSelectStatusChanged = function(e, data) {
-    that.unity.sendMessageToUnity("FocusOnObject-" + data.node.id);
+    this.preview.space.selectObject(data.node.id, false);
 }
 
 GUI.prototype.setSelectedObject = function(args) {
