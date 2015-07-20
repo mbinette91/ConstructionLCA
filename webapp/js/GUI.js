@@ -56,13 +56,14 @@ GUI.prototype.getProjectInfo = function() {
             that.displayTree(JSON.parse(data));
         }
     })
-    $.ajax("/project/info?get=materials&id="+this.projectId, {
+    // To-do: Are we sure this is loaded after the list of elements is loaded into the PreviewModule object ?
+    $.ajax("/project/info?get=info&id="+this.projectId, {
         error: function(){
-            console.log("Error while loading project materials!");
+            console.log("Error while loading project info!");
         },
         success: function(data){
             data = JSON.parse(data);
-            that.preview.setMaterialInformation(data);
+            that.preview.setNodeInformation(data);
         }
     })
 }

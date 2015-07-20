@@ -79,15 +79,15 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			self.end_headers()
 			self.wfile.write(json.dumps(data, encoding='latin1'))
 			return;
-		elif query['get'][0] == 'materials':
+		elif query['get'][0] == 'info':
 			conn = sqlite3.connect('../database.db3')
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('SELECT guid,className FROM products WHERE project_id=?', (query['id'][0],))
+			c.execute('SELECT guid,name,className,description FROM products WHERE project_id=?', (query['id'][0],))
 			
 			data = []
 			for row in c.fetchall():
-				data.append({'guid': row[0], 'className': row[1]})
+				data.append({'guid': row[0], 'name': row[1], 'className': row[2], 'description': row[3]})
 
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")

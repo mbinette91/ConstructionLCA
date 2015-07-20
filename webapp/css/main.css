@@ -137,3 +137,17 @@ div#unityPlayer {
 #Preview #preview-canvas {
     border: none;
 }
+
+#Preview #selected-element-info {
+    display: none;
+    color: #fff;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #333;
+    background: rgba(100,100,100,0.8);
+    width: 300px;
+    height: 120px;
+    position:absolute;
+    top: 50px;
+    right: 10px;
+}

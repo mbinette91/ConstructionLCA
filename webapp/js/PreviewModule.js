@@ -30,6 +30,7 @@ function space3d(view, gl) {
     this.objects3d = {};
     this.meshSheets = new MeshSheets();
     this.materials = IFCMaterials.get(this);
+    this.selectedObjects = [];
     this.rmodes = [{
         "f": true,
         "n": true,
@@ -609,12 +610,14 @@ function PreviewModule(canvas, file, color, path) {
     else this.getTickCount = getTickCountLegacy;
 }
 
-PreviewModule.prototype.setMaterialInformation = function(data) {
+PreviewModule.prototype.setNodeInformation = function(data) {
     var space = this.space;
     for(var i in data) {
         var obj = space.objects3d[data[i].guid];
-        if(obj)
+        if(obj){
+            obj.data = data[i];
             obj.setMaterial(space, space.materials.search(data[i]));
+        }
     }
 }
 
@@ -813,6 +816,23 @@ PreviewModule.prototype.invalidate = function(f) {
     if (this.timer) return;
     this.timer = true;
     setTimeout(this.drawScene.bind(this), 1);
+
+    this.refreshSelectedObjectsInfo();
+}
+PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
+    if(this.space.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
+        var node = this.space.selectedObjects[0];
+        if(node.data) {
+            $("#selected-element-info .name .info").html(node.data.name);
+            $("#selected-element-info .guid .info").html(node.data.guid);
+            $("#selected-element-info .type .info").html(node.data.className);
+            $("#selected-element-info .description .info").html(node.data.description);
+            $("#selected-element-info").show();
+        }
+    }
+    else{
+        $("#selected-element-info").hide();
+    }
 }
 
 /*Hit test stuff*/
@@ -1033,6 +1053,9 @@ node3d.prototype.Select = function(n, s, k) {
 space3d.prototype.Select = function(n, s, k) {
     var changes = false;
     if (this.root.Select(n, s, k)) {
+        if(!k)
+            this.selectedObjects = []
+        this.selectedObjects.push(n);
         this.invalidate();
         changes = true;
     }
