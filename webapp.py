@@ -83,11 +83,17 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			conn = sqlite3.connect('../database.db3')
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('SELECT guid,name,className,description FROM products WHERE project_id=?', (query['id'][0],))
+			c.execute('SELECT guid,p.name,description,class_name,m.name,m.thickness,m.layer_name FROM products p LEFT JOIN materials m ON p.id=m.product_id WHERE project_id=?', (query['id'][0],))
 			
 			data = []
 			for row in c.fetchall():
-				data.append({'guid': row[0], 'name': row[1], 'className': row[2], 'description': row[3]})
+				data.append({
+						'guid': row[0], 
+						'name': row[1], 
+						'description': row[2], 
+						'className': row[3], 
+						'material': {'name': row[4], 'thickness': row[5], 'layerName': row[6]}
+					})
 
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")

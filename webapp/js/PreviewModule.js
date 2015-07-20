@@ -827,6 +827,13 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
             $("#selected-element-info .guid .info").html(node.data.guid);
             $("#selected-element-info .type .info").html(node.data.className);
             $("#selected-element-info .description .info").html(node.data.description);
+            var mat = node.data.material;
+            if(mat && mat.name){
+                $("#selected-element-info .material .info").html(mat.name + " (" + mat.thickness + ") - " + mat.layerName);
+            }
+            else{
+                $("#selected-element-info .material .info").html("None");
+            }
             $("#selected-element-info").show();
         }
     }
