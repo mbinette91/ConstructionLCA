@@ -83,7 +83,8 @@ mesh3d.prototype.updateEdges = function() {
     }
 }
 mesh3d.prototype.c1 = function(space, info, oz) {
-    var s = space.setActiveMaterialAndGetShader(info.mtl, info.tm, oz);
+    space.setActiveShader(info.mtl, info.mtl.shader, info.tm, oz);
+    var s = info.mtl.shader;
     var gl = space.gl;
     var _i = s.attrs,
         c = _i.length;

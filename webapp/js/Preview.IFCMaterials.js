@@ -9,11 +9,11 @@
 
 IFCMaterials =  {}
 IFCMaterials.INFO = [
-    {"name": "default", "diffuse":{"color":[0.8,0.8,0.8]}, "specular":{"color":[0.4,0.4,0.4]}, "phong":64}, // Default
-    {"name": "brick", "diffuse":{"color":[0.8,0.0,0.0]}, "specular":{"color":[0.4,0.4,0.4]}, "phong":64},
-    {"name": "beton", "diffuse":{"color":[0.9,0.9,0.9]}, "specular":{"color":[0.4,0.4,0.4]}, "phong":64},
-    {"name": "wood", "diffuse":{"color":rgb(153,102,51)}, "specular":"default", "phong":64},
-    {"name": "glass", "diffuse":{"color":rgb(204,255,255)}, "specular":"default", "phong":64, "opacity":0.5},
+    {"name": "default", "diffuse":{"color":[0.8,0.8,0.8]}, "specular":{"color":[0.4,0.4,0.4]}}, // Default
+    {"name": "brick", "diffuse":{"color":[0.8,0.0,0.0]}, "specular":{"color":[0.4,0.4,0.4]}},
+    {"name": "beton", "diffuse":{"color":[0.9,0.9,0.9]}, "specular":{"color":[0.4,0.4,0.4]}},
+    {"name": "wood", "diffuse":{"color":rgb(153,102,51)}, "specular":"default"},
+    {"name": "glass", "diffuse":{"color":rgb(204,255,255)}, "specular":"default", "opacity":0.5},
     {"name": "metal", "diffuse":{"color":rgb(220,220,220)}},
     {"name": "invisible", "opacity":0},
 ];
@@ -36,14 +36,17 @@ IFCMaterials.get = function(space) {
 function IFCMaterialsManager(space){
     this.materials = {};
     for (i = 0; i < IFCMaterials.INFO.length; i++) {
-        var mtl = space.newMaterial();
         var info = IFCMaterials.INFO[i];
         if(info.specular == "default")
-            info.specular =this.materials["default"].specular;
-        mtl.load(info);
-        this.materials[IFCMaterials.INFO[i].name] = mtl;
+            info.specular = this.materials["default"].specular;
+        this.materials[IFCMaterials.INFO[i].name] = new material3d(space, info);
     }
     this.c2m = IFCMaterials.classToMaterial; // Classes to Materials associations
+}
+IFCMaterialsManager.prototype.initialize = function() {
+    console.log(this)
+    for(var i in this.materials)
+        this.materials[i].shader.update(this.materials[i]);
 }
 
 IFCMaterialsManager.prototype.search = function(info){

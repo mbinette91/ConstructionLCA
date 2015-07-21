@@ -10,6 +10,15 @@ var IV = {
     R_Z_OFFSET: 0x30000,
 };
 
+PreviewModule.prototype.initialize = function() {
+    this.initHardware();
+    this.invalidate();
+}
+
+space3d.prototype.onDataLoaded = function() {
+    this.materials.initialize();
+}
+
 function space3d(view, gl) {
     this.cfgTextures = true;
     this.gl = gl;
@@ -85,11 +94,7 @@ space3d.prototype.setActiveShader = function(m, s, tm, flags) {
     this.activeShader = s;
 }
 space3d.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
-    var shader = mat ? mat.getShader(flags) : 0;
-    if (shader && !shader.bValid) {
-        //if (this.activeShader) this.setActiveShader(null, null);
-        shader.update(mat);
-    }
+    var shader = mat.shader;
     this.setActiveShader(mat, shader, tm, flags);
     return shader;
 }
@@ -121,11 +126,7 @@ space3d.prototype.getTexture = function(str, type) {
     this.textures.push(t);
     return t;
 };
-space3d.prototype.newMaterial = function(n) {
-    var mtl = new material3d(this);
-    if (n) mtl.name = name;
-    return mtl;
-};
+
 space3d.prototype.load = function(data) {
     if (data) {
         if (data.space) {
@@ -150,8 +151,8 @@ space3d.prototype.load = function(data) {
                 }
             }
             if (s.views) this.views = s.views;
-            var w = this.window;
-            if (w && w.onDataReady) w.onDataReady(this);
+
+            this.onDataLoaded();
         }
     }
 };
@@ -583,6 +584,7 @@ PreviewModule.prototype.loadSpace = function(file, path) {
     var r = CreateRequest(file, path);
     r.ivspace = this.space;
     r.ivwnd = this;
+    var that = this;
     r.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             this.ivspace.load(JSON.parse(this.responseText));

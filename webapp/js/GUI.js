@@ -80,6 +80,7 @@ GUI.prototype.getProjectInfo = function() {
 GUI.prototype.initializePreview = function() {
     var that = this;
     this.preview = new PreviewModule(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
+    this.preview.initialize();
     this.preview.refreshSizes = function() {
         var w = $("#section-container").width();
         var h = $("#section-container").height();

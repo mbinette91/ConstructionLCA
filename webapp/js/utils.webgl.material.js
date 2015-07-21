@@ -23,14 +23,16 @@ function shader3d(m, f) {
     this.fShader = null;
     this.loadedtextures = 0;
     this.numLights = 0;
+
 };
 
-function material3d(space) {
+function material3d(space, info) {
     this.space = space;
     this.gl = space.gl;
     this.type = "standard";
-    this.shaders = [];
-    this.phong = 18;
+    this.phong = 64;
+    this.load(info);
+    this.shader = new shader3d(this, 9);
 }
 channel3d.prototype.setColor = function(clr) {
     if (!this.color) this.color = [0, 0, 0];
@@ -45,22 +47,6 @@ channel3d.prototype.setColor = function(clr) {
         c[1] = clr[1];
         c[2] = clr[2];
     }
-}
-material3d.prototype.invalidate = function() {
-    var s = this.shaders;
-    if (s) {
-        for (var i = 0; i < s.length; i++) s[i].detach(this.gl);
-        this.shaders = [];
-    }
-}
-material3d.prototype.reset = function() {
-    if (this.diffuse) delete this.diffuse;
-    if (this.specular) delete this.specular;
-    if (this.emissive) delete this.emissive;
-    if (this.reflection) delete this.reflection;
-    if (this.bump) delete this.bump;
-    if (this.opacity) delete this.opacity;
-    this.invalidate();
 }
 material3d.prototype.isChannel = function(c) {
     if ((c === undefined) || (c === null)) return false;
@@ -169,25 +155,6 @@ material3d.prototype.load = function(d) {
         }
     }
     return true;
-}
-material3d.prototype.getShader = function(flags) {
-    flags &= ~256;
-    if (!this.space.cfgTextures) flags &= ~2;
-    for (var i = 0; i < this.shaders.length; i++) {
-        var s = this.shaders[i];
-        if (s.flags == flags) {
-            if ((s.loadedtextures != s.textures.length) && s.bValid) {
-                var c = s.readyTextures(false);
-                if (c != s.loadedtextures) s.bValid = false;
-            }
-            if (s.numLights != this.space.lights.length) s.bValid = false;
-            return s;
-        }
-    }
-
-    var s = new shader3d(this, flags);
-    this.shaders.push(s);
-    return s;
 }
 
 shader3d.prototype.addVar = function(id, ord) {
