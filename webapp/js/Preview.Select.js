@@ -23,16 +23,16 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
 
 
 PreviewModule.prototype.getUpVector = function() {
-    return vec3.sub_r(this.view.up, this.view.from);
+    return vec3.sub_r(this.viewUp, this.viewFrom);
 }
 PreviewModule.prototype.getRay = function(x, y, ray) {
     var gl = this.gl,
         w = gl.viewportWidth,
         h = gl.viewportHeight;
     gl.viewport(0, 0, w, h);
-    var p1 = this.view.from,
-        p2 = this.view.to;
-    var dir = vec3.sub_r(this.view.to, this.view.from);
+    var p1 = this.viewFrom,
+        p2 = this.viewTo;
+    var dir = vec3.sub_r(this.viewTo, this.viewFrom);
     var dirLen = vec3.length(dir);
     var up = this.getUpVector();
     var k = Math.tan(Math.PI * this.fov / 360);
