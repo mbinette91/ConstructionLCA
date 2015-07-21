@@ -19,6 +19,8 @@ function PreviewModule(canvas) {
     this.fov = 90;
     this.bkColor = 0xcccccc;
     this._drawScene_Timeout = false;
+
+    this.input = new PreviewModule.InputHandler(this);
 }
 
 PreviewModule.prototype.initialize = function(file, path) {
@@ -26,8 +28,8 @@ PreviewModule.prototype.initialize = function(file, path) {
     if (this.gl) {
         this.loadSpace(file, path);
         this.gl.enable(this.gl.DEPTH_TEST);
-        this.initHandlers();
-        this.initEvents();
+        this.input.initialize();
+        this.input.initEvents();
         this.invalidate();
     }
 }

@@ -42,9 +42,6 @@ Scene.prototype.onDataLoaded = function() {
     this.materials.initialize();
 }
 
-Scene.prototype.getWindow = function() {
-    return this.window;
-}
 Scene.prototype.onMeshLoaded = function(m) {
     this.invalidate();
 };
