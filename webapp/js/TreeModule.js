@@ -44,9 +44,6 @@ TreeModule.prototype.display = function(tree) {
             },
             "multiple": true
         },
-        //"checkbox": {
-        //    'tie_selection':false
-        //},
         "types" : {
             "type1" : {
                 "icon" : "glyphicon-type1"

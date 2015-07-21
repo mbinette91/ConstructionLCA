@@ -13,21 +13,12 @@ var IV = {
 function PreviewModule(canvas) {
     this.canvas = canvas;
     this.mvMatrix = mat4.create();
-    this.mouseCaptured = false;
-    this.mouseCancelPopup = false;
-    this.mouseMoved = false;
     this.viewFrom = [0, 0, 6];
     this.viewTo = [0, 0, 0];
     this.viewUp = [0, 1, 0];
     this.fov = 90;
-    this.LX = 0;
-    this.LY = 0;
-    this.lastTouchDistance = -1;
-    this.orbitMode = 1;
-    this.cameraMode = 0;
     this.bkColor = 0xcccccc;
-    this.vpVersion = 0;
-    this.timer = false;
+    this._drawScene_Timeout = false;
 }
 
 PreviewModule.prototype.initialize = function(file, path) {
@@ -59,10 +50,6 @@ PreviewModule.prototype.setNodeInformation = function(data) {
     }
 }
 
-
-PreviewModule.prototype.getWindow = function() {
-    return this;
-}
 PreviewModule.prototype.initHardware = function() {
     var n = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     for (var i = 0; i < n.length; i++) {
@@ -164,19 +151,17 @@ PreviewModule.prototype.drawScene = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this.updateMVTM();
     this.scene.render(this.mvMatrix);
-    this.timer = false;
+    this._drawScene_Timeout = null;
 }
 PreviewModule.prototype.invalidate = function(f) {
     if (f !== undefined) {
-        if (f & IV.INV_VERSION) this.vpVersion++;
         if (f & IV.INV_MTLS && this.scene.materials) {
             var _i = this.scene.materials;
             for (var i = 0; i < _i.length; i++) _i[i].invalidate();
         }
     }
-    if (this.timer) return;
-    this.timer = true;
-    setTimeout(this.drawScene.bind(this), 1);
+    if (this._drawScene_Timeout) return;
+    this._drawScene_Timeout = setTimeout(this.drawScene.bind(this), 1);
 
     this.refreshSelectedObjectsInfo();
 }

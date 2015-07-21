@@ -1,5 +1,14 @@
 
 PreviewModule.prototype.initHandlers = function() {
+    this.lastTouchDistance = -1;
+    this.orbitMode = 1;
+    this.cameraMode = 0;
+    this.LX = 0;
+    this.LY = 0;
+    this.mouseCaptured = false;
+    this.mouseCancelPopup = false;
+    this.mouseMoved = false;
+    
     var w = this;
     var i = {
         "move": function(event) {
