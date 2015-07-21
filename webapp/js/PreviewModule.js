@@ -99,77 +99,6 @@ space3d.prototype.c2 = function(m, tm, flags) {
     return s;
 }
 
-function bk3d(space, txt) {
-    var gl = space.gl;
-    this.uv = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-    this.uvBuffer = ivBufferF(gl, this.uv, 2);
-    this.vBuffer = ivBufferF(gl, new Float32Array([-1.0, -1.0, 0.0, 1.0, -1.0, 0.0, -1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, 1.0, 1.0, 0.0]), 3);
-    var mtl = new material3d(space);
-    var c = mtl.newChannel("emissive");
-    mtl.newTexture(c, txt);
-    c.wrapS = gl.CLAMP_TO_EDGE;
-    c.wrapT = gl.CLAMP_TO_EDGE;
-    this.mtl = mtl;
-    this.texture = c.texture;
-}
-space3d.prototype.drawBk = function() {
-    if (this.bk && this.bk.texture.ivready) {
-        var gl = this.gl;
-        if (gl.viewportHeight && gl.viewportWidth) {
-            gl.clear(gl.DEPTH_BUFFER_BIT);
-            var bk = this.bk;
-            var s = this.c2(bk.mtl, null, 2);
-            for (var i = 0; i < s.attrs.length; i++) {
-                var v = s.attrs[i];
-                var b = null;
-                switch (v.id) {
-                    case 4300:
-                        b = bk.vBuffer;
-                        gl.bindBuffer(gl.ARRAY_BUFFER, b);
-                        break;
-                    case 4302:
-                        {
-                            b = bk.uvBuffer;
-                            gl.bindBuffer(gl.ARRAY_BUFFER, b);
-                            var img = bk.texture.image;
-                            var kx = gl.viewportWidth / img.naturalWidth,
-                                ky = gl.viewportHeight / img.naturalHeight;
-                            var x = 0,
-                                y = 0;
-                            if (kx > ky) y = (1.0 - ky / kx) / 2;
-                            else
-                            if (kx < ky) x = (1.0 - kx / ky) / 2;
-                            var uv = bk.uv;
-                            if (Math.abs(uv[0] - x) > 1e-5 || Math.abs(uv[1] - y) > 1e-5) {
-                                uv[0] = x;
-                                uv[1] = y;
-                                uv[2] = 1.0 - x;
-                                uv[3] = y;
-                                uv[4] = x;
-                                uv[5] = 1.0 - y;
-                                uv[6] = x;
-                                uv[7] = 1.0 - y;
-                                uv[8] = 1.0 - x;
-                                uv[9] = y;
-                                uv[10] = 1.0 - x;
-                                uv[11] = 1.0 - y;
-                                gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
-                            }
-                        }
-                        break;
-                }
-                if (b) gl.vertexAttribPointer(v.slot, b.itemSize, gl.FLOAT, false, 0, 0);
-            }
-            gl.disable(gl.DEPTH_TEST);
-            gl.depthMask(false);
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-            gl.enable(gl.DEPTH_TEST);
-            gl.depthMask(true);
-            return true;
-        }
-    }
-    return false;
-}
 space3d.prototype.invalidate = function(flags) {
     this.window.invalidate(flags);
 }
@@ -178,43 +107,6 @@ function isPOW2(v) {
     return (v & (v - 1)) == 0;
 }
 
-function handleLoadedTexture(texture) {
-    if (texture.image.naturalWidth > 0 && texture.image.naturalHeight > 0) {
-        var type = texture.ivtype;
-        var gl = texture.ivspace.gl;
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.bindTexture(type, texture);
-        gl.texImage2D(type, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-        var pot = isPOW2(texture.image.naturalWidth) && isPOW2(texture.image.naturalHeight);
-        gl.texParameteri(type, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(type, gl.TEXTURE_MIN_FILTER, pot ? gl.LINEAR_MIPMAP_NEAREST : gl.LINEAR);
-        if (pot) gl.generateMipmap(type);
-        gl.bindTexture(type, null);
-        texture.ivready = true;
-        texture.ivpot = pot;
-        texture.ivspace.invalidate();
-    }
-    delete texture.image.ivtexture;
-    delete texture.ivspace;
-}
-
-function handleLoadedCubeTexture(image) {
-    var texture = image.ivtexture;
-    var gl = texture.ivspace.gl;
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.texImage2D(image.ivface, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    texture.ivnumfaces++;
-    if (texture.ivnumfaces == 6) {
-        texture.ivready = true;
-        texture.ivspace.invalidate();
-        delete texture.ivspace;
-    }
-    delete image.ivtexture;
-};
 space3d.prototype.getTexture = function(str, type) {
     var t;
     for (var i = 0; i < this.textures.length; i++) {
@@ -231,36 +123,6 @@ space3d.prototype.getTexture = function(str, type) {
     t.ivfile = str;
     t.ivtype = type;
     t.ivrefcount = 1;
-    if (type == gl.TEXTURE_CUBE_MAP) {
-        var faces = [
-            ["posx", gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-            ["negx", gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-            ["posy", gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-            ["negy", gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-            ["posz", gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-            ["negz", gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
-        ];
-        t.ivnumfaces = 0;
-        var _str = str.split(".");
-        if (this.path) _str[0] = this.path + _str[0];
-        for (var i = 0; i < 6; i++) {
-            var filename = _str[0] + faces[i][0] + "." + _str[1];
-            var image = new Image();
-            image.ivtexture = t;
-            image.ivface = faces[i][1];
-            image.onload = function() {
-                handleLoadedCubeTexture(this)
-            };
-            image.src = filename;
-        }
-    } else {
-        t.image = new Image();
-        t.image.ivtexture = t;
-        t.image.onload = function() {
-            handleLoadedTexture(this.ivtexture)
-        };
-        t.image.src = this.path ? this.path + str : str;
-    }
     this.textures.push(t);
     return t;
 };
@@ -293,7 +155,6 @@ space3d.prototype.load = function(data) {
                 }
             }
             if (s.views) this.views = s.views;
-            if (data.space.bk != undefined) this.bk = new bk3d(this, data.space.bk);
             var w = this.window;
             if (w && w.onDataReady) w.onDataReady(this);
         }
@@ -790,14 +651,12 @@ PreviewModule.prototype.updateMVTM = function() {
 PreviewModule.prototype.drawScene = function() {
     var gl = this.gl;
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    if (this.space.bk == undefined || (!this.space.drawBk())) {
-        var bk = this.bkColor;
-        var r = ((bk >> 16) & 0xff) / 255.0;
-        var g = ((bk >> 8) & 0xff) / 255.0;
-        var b = (bk & 0xff) / 255.0;
-        gl.clearColor(r, g, b, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    }
+    var bk = this.bkColor;
+    var r = ((bk >> 16) & 0xff) / 255.0;
+    var g = ((bk >> 8) & 0xff) / 255.0;
+    var b = (bk & 0xff) / 255.0;
+    gl.clearColor(r, g, b, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     this.updateMVTM();
     this.space.render(this.mvMatrix);
     this.timer = false;
