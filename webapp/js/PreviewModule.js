@@ -1057,12 +1057,26 @@ node3d.prototype.Select = function(n, s, k) {
     }
     return b;
 }
+
+node3d.prototype.isSelected = function() {
+    return this.state & 4;
+}
+
 space3d.prototype.Select = function(n, s, k) {
     var changes = false;
     if (this.root.Select(n, s, k)) {
         if(!k)
             this.selectedObjects = []
-        this.selectedObjects.push(n);
+        if(n && n.isSelected())
+            this.selectedObjects.push(n);
+        else{
+          for(var i in this.selectedObjects) {
+              if(this.selectedObjects[i] == n) {
+                  this.selectedObjects.splice(i, 1);
+                  break;
+              }
+          }
+        }
         this.invalidate();
         changes = true;
     }
@@ -1078,12 +1092,15 @@ space3d.prototype.Select = function(n, s, k) {
 }
 
 /*Click on tree*/
+space3d.prototype.clearSelected = function() {
+    this.Select(null, false, false);
+}
 space3d.prototype.selectObject = function(guid, multiple) {
     var node = this.objects3d[guid];
 
     if (node) {
         var bSelect = true;
-        if (multiple && node && n.state & 4) bSelect = false;
+        if (multiple && node && node.state & 4) bSelect = false;
         this.Select(node, bSelect, multiple);
         /* //Move camera - put in another function, if the guy wants to select multiple elemnts by clicking on them, 
         //it should move the camera. single click in scene = select, double click = same as click on tree = select + move

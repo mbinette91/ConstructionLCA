@@ -1,8 +1,17 @@
 
 var GUI = function () {
+    this.modules = [];
     this.fsManager = new FullScreenManager();
     this.stats = new StatsModule();
+    this.tree = new TreeModule();
+    this.registerModule(this.stats);
+    this.registerModule(this.tree);
 };
+
+GUI.prototype.registerModule = function(module){
+    this.modules.push(module);
+    module.gui = this;
+}
 
 GUI.prototype.initialize = function(projectId) {
     var that = this;
@@ -53,7 +62,7 @@ GUI.prototype.getProjectInfo = function() {
             console.log("Error while loading project tree!");
         },
         success: function(data){
-            that.displayTree(JSON.parse(data));
+            that.tree.display(JSON.parse(data));
         }
     })
     // To-do: Are we sure this is loaded after the list of elements is loaded into the PreviewModule object ?
@@ -80,6 +89,8 @@ GUI.prototype.initializePreview = function() {
         that.preview.invalidate();
     };
     this.preview.refreshSizes();
+
+    this.registerModule(this.preview);
 }
 
 
@@ -91,85 +102,5 @@ GUI.prototype.handleWindowSizeChanged = function() {
         that.stats.refreshGraph();
     }, 10); // Artificial timeout because the layout plugin needs to update itself.
 }
-
-GUI.prototype.generateTreeHTML = function(tree) {
-    var list = $("<ul>")
-
-    for(var i in tree) {
-        var node = tree[i];
-        var nodeType = 'type' + Math.floor((Math.random() * 3) + 1);
-        var htmlNode = $("<li id='"+node[0]+"'>" + node[1] + "</li>")
-        htmlNode.data('jstree', {'type': nodeType}) // Insert data before appending to the list.
-        list.append(htmlNode); // Insert into node before appending stuff into it.
-        if(node[1] && node[1].length > 0)
-            htmlNode.append( this.generateTreeHTML(node[2]) );
-    }
-
-    return list;
-}
-
-GUI.prototype.displayTree = function(tree) {
-    that = this;
-    this._selectingProgramatically = false;
-
-    $("#tree .loading").hide();
-
-    $("#tree .content").append( this.generateTreeHTML(tree) );
-
-    $('#tree .content').jstree({ 
-        "core" : {
-            "themes" : {
-                "variant" : "medium",
-                "dots" : false
-            },
-            "multiple": false
-        },
-        //"checkbox": {
-        //    'tie_selection':false
-        //},
-        "types" : {
-            "type1" : {
-                "icon" : "glyphicon-type1"
-            },
-            "type2" : {
-                "icon" : "glyphicon-type2"
-            },
-            "type3" : {
-                "icon" : "glyphicon-type3"
-            },
-        },
-        "plugins" : [ "wholerow", 'types'] // , "checkbox"]
-    }).on("check_node.jstree", function (e, data) {
-        that.handleTreeStatusChanged(e, data)
-    }).on("uncheck_node.jstree", function (e, data) {
-        that.handleTreeStatusChanged(e, data)
-    }).on("select_node.jstree", function (e, data) {
-        if(!that._selectingProgramatically)
-            that.handleSelectStatusChanged(e, data)
-    }).jstree("check_all", true);
-}
-
-GUI.prototype.handleTreeStatusChanged = function(e, data) {
-    var checkboxData = data.instance._model.data; // '#' contains info about all the other children
-    var checkboxDataIndexes = checkboxData['#'].children_d;
-    bitmap = ""
-    for(var i = 0; i < checkboxDataIndexes.length; i++){
-        var index = checkboxDataIndexes[i]
-        bitmap += checkboxData[index].state.checked? '1' : '0';
-    }
-    that.unity.sendMessageToUnity("SetTreeVisibility-" + bitmap);
-}
-
-GUI.prototype.handleSelectStatusChanged = function(e, data) {
-    this.preview.space.selectObject(data.node.id, false);
-}
-
-GUI.prototype.setSelectedObject = function(args) {
-    this._selectingProgramatically = true;
-    $('#tree .content').jstree().deselect_all();
-    $('#tree .content').jstree().select_node(args);
-    this._selectingProgramatically = false;
-}
-
 
 GUI.Instance = new GUI();

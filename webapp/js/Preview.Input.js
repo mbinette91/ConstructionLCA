@@ -105,6 +105,7 @@ PreviewModule.prototype.handleObjSelect = function(x, y, event, bDown) {
         var bSelect = true;
         if (bCtrl && n && n.state & 4) bSelect = false;
         this.space.Select(n, bSelect, bCtrl);
+        this.gui.tree.setSelectedObjects(this.space.selectedObjects);
     }
 }
 PreviewModule.prototype.onMouseUp = function(event, touch) {
@@ -197,14 +198,18 @@ PreviewModule.prototype.onTouchCancel = function(event) {
 }
 PreviewModule.prototype._onMouseMove = function(event) {
     if (this.mouseCaptured) {
+        this.mouseMoved = true;
         var b = this.decodeButtons(event, false);
         if (b) this.onMouseMove(event, false);
         else this.onMouseUp(event, false);
         this.pd(event);
         event.stopPropagation();
+        this.mouseMoved = false;
         return true;
     } else {
+        this.mouseMoved = true;
         if (this.onMouseHover) this.onMouseHover(event);
+        this.mouseMoved = false;
     }
     return false;
 }
@@ -242,7 +247,6 @@ PreviewModule.prototype.onMouseMove = function(event, touch) {
                     this.invalidate(IV.INV_VERSION);
                 }
                 this.lastTouchDistance = d;
-                this.mouseMoved = true;
                 this.LX = p.x;
                 this.LY = p.y;
             } else this.lastTouchDistance - 1;
