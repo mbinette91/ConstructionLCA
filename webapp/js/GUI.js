@@ -2,8 +2,10 @@
 var GUI = function () {
     this.modules = [];
     this.fsManager = new FullScreenManager();
+    this.preview = new PreviewModule($("#preview-canvas")[0]);
     this.stats = new StatsModule();
     this.tree = new TreeModule();
+    this.registerModule(this.preview);
     this.registerModule(this.stats);
     this.registerModule(this.tree);
 };
@@ -46,7 +48,8 @@ GUI.prototype.initialize = function(projectId) {
                 setTimeout(checkPreviewData, POOLING_INTERVAL);
             },
             success: function(){
-                that.initializePreview();
+                that.preview.initialize("tree.json", "/data/output-" + projectId + "/");
+                that.preview.setSize($("#section-container").width(), $("#section-container").height());
                 that.getProjectInfo();
             }
         })
@@ -77,29 +80,13 @@ GUI.prototype.getProjectInfo = function() {
     })
 }
 
-GUI.prototype.initializePreview = function() {
-    var that = this;
-    this.preview = new PreviewModule(document.getElementById("preview-canvas"), "tree.json", 0xcccccc, "/data/output-" + projectId + "/");
-    this.preview.initialize();
-    this.preview.refreshSizes = function() {
-        var w = $("#section-container").width();
-        var h = $("#section-container").height();
-        $("#preview-canvas").attr("width", w);
-        $("#preview-canvas").attr("height", h);
-        that.preview.initHardware();
-        that.preview.invalidate();
-    };
-    this.preview.refreshSizes();
-
-    this.registerModule(this.preview);
-}
-
-
 GUI.prototype.handleWindowSizeChanged = function() {
     var that = this;
 
     setTimeout(function(){
-        that.preview.refreshSizes();
+        var w = $("#section-container").width();
+        var h = $("#section-container").height();
+        that.preview.setSize(w, h);
         that.stats.refreshGraph();
     }, 10); // Artificial timeout because the layout plugin needs to update itself.
 }

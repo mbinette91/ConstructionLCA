@@ -44,7 +44,6 @@ function IFCMaterialsManager(space){
     this.c2m = IFCMaterials.classToMaterial; // Classes to Materials associations
 }
 IFCMaterialsManager.prototype.initialize = function() {
-    console.log(this)
     for(var i in this.materials)
         this.materials[i].shader.update(this.materials[i]);
 }

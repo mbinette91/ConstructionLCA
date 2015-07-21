@@ -10,9 +10,54 @@ var IV = {
     R_Z_OFFSET: 0x30000,
 };
 
-PreviewModule.prototype.initialize = function() {
+function PreviewModule(canvas) {
+    this.canvas = canvas;
+    this.mvMatrix = mat4.create();
+    this.mouseCaptured = false;
+    this.mouseCancelPopup = false;
+    this.mouseMoved = false;
+    this.viewFrom = [0, 0, 6];
+    this.viewTo = [0, 0, 0];
+    this.viewUp = [0, 1, 0];
+    this.fov = 90;
+    this.LX = 0;
+    this.LY = 0;
+    this.lastTouchDistance = -1;
+    this.orbitMode = 1;
+    this.cameraMode = 0;
+    this.bkColor = 0xcccccc;
+    this.vpVersion = 0;
+    this.timer = false;
+}
+
+PreviewModule.prototype.initialize = function(file, path) {
+    this.initHardware();
+    if (this.gl) {
+        if (file) this.loadSpace(file, path);
+        else this.space = null;
+        this.gl.enable(this.gl.DEPTH_TEST);
+        this.initHandlers();
+        this.initEvents();
+        this.invalidate();
+    }
+}
+
+PreviewModule.prototype.setSize = function(width, height) {
+    $(this.canvas).attr("width", width);
+    $(this.canvas).attr("height", height);
     this.initHardware();
     this.invalidate();
+};
+
+PreviewModule.prototype.setNodeInformation = function(data) {
+    var space = this.space;
+    for(var i in data) {
+        var obj = space.objects3d[data[i].guid];
+        if(obj){
+            obj.data = data[i];
+            obj.setMaterial(space, space.materials.search(data[i]));
+        }
+    }
 }
 
 space3d.prototype.onDataLoaded = function() {
@@ -432,58 +477,6 @@ function ivBufferI(gl, v) {
     b.itemSize = 1;
     b.numItems = v.length;
     return b;
-}
-
-function PreviewModule(canvas, file, color, path) {
-    this.canvas = canvas;
-    this.mvMatrix = mat4.create();
-    this.mouseCaptured = false;
-    this.mouseCancelPopup = false;
-    this.mouseMoved = false;
-    this.viewFrom = [0, 0, 6];
-    this.viewTo = [0, 0, 0];
-    this.viewUp = [0, 1, 0];
-    this.fov = 90;
-    this.LX = 0;
-    this.LY = 0;
-    this.lastTouchDistance = -1;
-    this.orbitMode = 1;
-    this.cameraMode = 0;
-    this.bkColor = (color != undefined) ? color : 0x7f7f7f;
-    this.initHardware();
-    this.vpVersion = 0;
-    this.timer = false;
-    if (this.gl) {
-        if (file) this.loadSpace(file, path);
-        else this.space = null;
-        this.gl.enable(this.gl.DEPTH_TEST);
-        this.initHandlers();
-        this.initEvents();
-        this.invalidate();
-    }
-    if (window.performance && window.performance.now) this.getTickCount = getTickCountNew;
-    else this.getTickCount = getTickCountLegacy;
-}
-
-PreviewModule.prototype.setNodeInformation = function(data) {
-    var space = this.space;
-    for(var i in data) {
-        var obj = space.objects3d[data[i].guid];
-        if(obj){
-            obj.data = data[i];
-            obj.setMaterial(space, space.materials.search(data[i]));
-        }
-    }
-}
-
-function getTickCountNew() {
-    return window.performance.now();
-}
-
-function getTickCountLegacy() {
-    var d = new Date();
-    var time = d.getTime();
-    return time;
 }
 
 function indexOf(a, b) {
