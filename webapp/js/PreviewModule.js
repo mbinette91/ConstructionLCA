@@ -527,7 +527,6 @@ node3d.prototype.load = function(d, space) {
             }
         }
     }
-    if (d.anim) this.anim = d.anim;
     if (d.i) {
         var n = d.i;
         for (i = 0; i < n.length; i++) {
@@ -591,7 +590,6 @@ function PreviewModule(canvas, file, color, path) {
     this.LX = 0;
     this.LY = 0;
     this.lastTouchDistance = -1;
-    this.autoRotate = true;
     this.orbitMode = 1;
     this.cameraMode = 0;
     this.bkColor = (color != undefined) ? color : 0x7f7f7f;
@@ -720,7 +718,6 @@ PreviewModule.prototype.setViewImp = function(v) {
     }
 }
 PreviewModule.prototype.setDefView = function() {
-    this.removeAnimationType("spin");
     this.setViewImp(this.space.view);
     this.invalidate(IV.INV_VERSION);
 }

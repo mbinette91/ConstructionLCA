@@ -31,9 +31,6 @@ PreviewModule.prototype.initHandlers = function() {
         },
         "wheel": function(event) {
             w.onMouseWheel(event);
-        },
-        "a": function() {
-            w.animate();
         }
     };
     this.input = i;
@@ -109,14 +106,6 @@ PreviewModule.prototype.handleObjSelect = function(x, y, event, bDown) {
     }
 }
 PreviewModule.prototype.onMouseUp = function(event, touch) {
-    var a = this.last;
-    if (a) {
-        if (this.autoRotate) {
-            var dt = this.getTickCount() - a.t;
-            if (dt < 200) this.addAnimation(new animationSpin(this, dt));
-        }
-        this.last = null;
-    }
     var e = event;
     if (touch) {
         if (event.touches.length) e = event.touches[0];
@@ -215,11 +204,7 @@ PreviewModule.prototype._onMouseMove = function(event) {
 }
 PreviewModule.prototype.onMouseDown = function(event, touch) {
     this.setCapture();
-    this.removeAnimationType("spin");
-    this.last = {
-        x: 0,
-        y: 0
-    };
+
     var e = event;
     this.lastTouchDistance = -1;
     if (touch) {
@@ -268,14 +253,6 @@ PreviewModule.prototype.onMouseMove = function(event, touch) {
             invF = IV.INV_VERSION;
         } else
         if (b & 1) {
-            var a = this.last;
-            if (a) {
-                a.x = dX + a.x / 2;
-                a.y = dY + a.y / 2;
-                var t = this.getTickCount();
-                a.dt = t - a.t;
-                a.t = t;
-            }
             this.doOrbit(dX, dY);
             invF = IV.INV_VERSION;
         } else
@@ -370,116 +347,4 @@ PreviewModule.prototype.doFOV = function(dX, dY) {
         return true;
     }
     return false;
-}
-
-
-
-
-
-
-
-PreviewModule.prototype.animate = function() {
-    var j = 0,
-        rez = 0,
-        uFlags = 0,
-        inv = false,
-        bKill = true;
-    var time = this.getTickCount();
-    var _i = this.transitions;
-    while (j < _i.length) {
-        var i = _i[j];
-        var bDel = false;
-        if (i.lastTime != time) {
-            if (i.duration) {
-                var a = (time - i.startTime) / i.duration;
-                if ((a >= 1.0) || (a < 0)) {
-                    a = 1.0;
-                    bDel = true;
-                }
-                rez = i.animate(a);
-            } else {
-                rez = i.animate(time - i.lastTime);
-                if (!(rez & 1)) bDel = true;
-            }
-            i.lastTime = time;
-        }
-        if (rez & 2) inv = true;
-        if (rez & 4) uFlags |= IV.INV_VERSION;
-        if (bDel) {
-            _i.splice(j, 1);
-            if (i.detach) i.detach(this);
-        } else j++;
-    }
-    if (inv) this.invalidate(uFlags);
-    if (!_i.length) {
-        clearInterval(this.transTimer);
-        this.transTimer = null;
-    }
-}
-PreviewModule.prototype.getAnimation = function(type) {
-    var _i = this.transitions;
-    if (_i) {
-        for (var i = 0; i < _i.length; i++) {
-            var t = _i[i];
-            if (t.type && t.type == type) return i;
-        }
-    }
-    return -1;
-};
-PreviewModule.prototype.removeAnimationType = function(type) {
-    var _i = this.transitions;
-    if (_i) {
-        for (var i = 0; i < _i.length; i++) {
-            var t = _i[i];
-            if (t.type && t.type == type) {
-                if (t.detach) t.detach(this);
-                _i.splice(i, 1);
-                return true;
-            }
-        }
-    }
-    return false;
-};
-PreviewModule.prototype.removeAnimation = function(a) {
-    var _i = this.transitions;
-    if (_i) {
-        var i = indexOf(_i, a);
-        if (i > -1) {
-            if (a.detach) a.detach(this);
-            _i.splice(i, 1);
-            return true;
-        }
-    }
-    return false;
-}
-PreviewModule.prototype.addAnimation = function(i) {
-    i.lastTime = this.getTickCount();
-    if (i.duration) i.startTime = i.lastTime;
-    if (!this.transitions) this.transitions = [];
-    this.transitions.push(i);
-    if (!this.transTimer) {
-        var w = this;
-        this.transTimer = setInterval(this.input.a, 10);
-    }
-};
-
-function animationSpin(wnd, t) {
-    this.type = "spin";
-    this.wnd = wnd;
-    var a = wnd.last;
-    var k = this.kf(a.dt);
-    this.x = a.x * k;
-    this.y = a.y * k;
-}
-animationSpin.prototype.kf = function(a) {
-    return Math.pow(0.82, a / 100);
-}
-animationSpin.prototype.animate = function(a) {
-    this.wnd.doOrbit(this.x, this.y);
-    var k = this.kf(a);
-    this.x *= k;
-    this.y *= k;
-    k = 1e-1;
-    if ((Math.abs(this.x) < k) && (Math.abs(this.y) < k)) return 6;
-    return 7;
 }
