@@ -184,10 +184,12 @@ material3d.prototype.getShader = function(flags) {
             return s;
         }
     }
+
     var s = new shader3d(this, flags);
     this.shaders.push(s);
     return s;
 }
+
 shader3d.prototype.addVar = function(id, ord) {
     var v = new mtlvar3d(id, ord);
     this.vars.push(v);

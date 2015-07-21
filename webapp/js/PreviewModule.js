@@ -71,32 +71,27 @@ space3d.prototype.updateShadeArgs = function(a) {
     var ca = (p) ? p.attrs.length : 0,
         na = a ? a.attrs.length : 0;
     if (na > ca) {
+        console.log("AAAdd"+na+" "+ca)
         for (i = ca; i < na; i++) gl.enableVertexAttribArray(i);
     } else if (na < ca) {
+        console.log("AAAdcccc"+na+" "+ca)
         for (i = na; i < ca; i++) gl.disableVertexAttribArray(i);
     }
-    ca = p ? p.textures.length : 0;
-    for (i = 0; i < ca; i++) {
-        gl.activeTexture(gl.TEXTURE0 + i);
-        var txt = p.textures[i];
-        var type = txt.txt.ivtype;
-        gl.bindTexture(type === undefined ? gl.TEXTURE_2D : type, null);
-    }
 }
-space3d.prototype.c1 = function(m, s, tm, flags) {
+space3d.prototype.setActiveShader = function(m, s, tm, flags) {
     if (s != this.activeShader) this.updateShadeArgs(s);
     if (s) s.activate(this, m, tm, flags, s == this.activeShader);
     else this.gl.useProgram(null);
     this.activeShader = s;
 }
-space3d.prototype.c2 = function(m, tm, flags) {
-    var s = m ? m.getShader(flags) : 0;
-    if (s && !s.bValid) {
-        if (this.activeShader) this.c1(null, null);
-        s.update(m);
+space3d.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
+    var shader = mat ? mat.getShader(flags) : 0;
+    if (shader && !shader.bValid) {
+        //if (this.activeShader) this.setActiveShader(null, null);
+        shader.update(mat);
     }
-    this.c1(m, s, tm, flags);
-    return s;
+    this.setActiveShader(mat, shader, tm, flags);
+    return shader;
 }
 
 space3d.prototype.invalidate = function(flags) {
@@ -243,7 +238,7 @@ space3d.prototype.render = function(tm) {
             gl.disable(gl.BLEND);
             this.post = [];
         }
-        this.c2(null);
+        //this.setActiveShader(null, 0);
     }
 };
 space3d.prototype.toRenderQueue = function(atm, node, state) {
