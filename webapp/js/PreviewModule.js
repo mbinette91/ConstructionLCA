@@ -1073,7 +1073,6 @@ space3d.prototype.Select = function(n, s, k) {
           for(var i in this.selectedObjects) {
               if(this.selectedObjects[i] == n) {
                   this.selectedObjects.splice(i, 1);
-                  break;
               }
           }
         }

@@ -72,4 +72,5 @@ TreeModule.prototype.handleSelectStatusChanged = function(e, data) {
 	this.gui.preview.space.clearSelected(); // Clear everything
 	for(var i in data.selected)
     	this.gui.preview.space.selectObject(data.selected[i], data.selected.length > 1); // Reselect everything
+    this.gui.preview.refreshSelectedObjectsInfo();
 }
