@@ -26,9 +26,9 @@ function shader3d(m, f) {
 
 };
 
-function material3d(space, info) {
-    this.space = space;
-    this.gl = space.gl;
+function material3d(scene, info) {
+    this.scene = scene;
+    this.gl = scene.gl;
     this.type = "standard";
     this.phong = 64;
     this.load(info);
@@ -72,7 +72,7 @@ material3d.prototype.getChannel = function(type) {
 material3d.prototype.newTexture = function(c, name, type) {
     var gl = this.gl;
     if (type === undefined) type = gl.TEXTURE_2D;
-    c.texture = this.space.getTexture(name, type);
+    c.texture = this.scene.getTexture(name, type);
     if (type == gl.TEXTURE_CUBE_MAP) c.wrapT = c.wrapS = gl.CLAMP_TO_EDGE;
     else {
         if (!c.wrapS) c.wrapS = gl.REPEAT;
@@ -405,7 +405,7 @@ shader3d.prototype.fetchTextures = function(gl, ft) {
 shader3d.prototype.update = function(mtl) {
     mtl = this.mtl;
     if (this.program) this.detach(mtl.gl);
-    this.numLights = mtl.space.lights.length;
+    this.numLights = mtl.scene.lights.length;
     this.channelId = 0;
     var gl = mtl.gl,
         i;
@@ -422,7 +422,7 @@ shader3d.prototype.update = function(mtl) {
         bBump = false;
     var bEmissive = mtl.isChannel(mtl.emissive);
     var bOpacity = mtl.isChannel(mtl.opacity);
-    var lights = mtl.space.lights;
+    var lights = mtl.scene.lights;
     vt.push("attribute vec3 inV;\nvarying vec4 wPosition;");
     if (this.flags & 4) vt.push("varying vec3 vC;attribute vec3 inC;");
     var bUV = false;
@@ -433,7 +433,7 @@ shader3d.prototype.update = function(mtl) {
             if (mtl.isChannel(mtl.specular)) bSpecular = true;
             bLights = bDiffuse || bSpecular;
         }
-        if (mtl.space.cfgTextures) bReflection = this.c0(mtl.reflection);
+        if (mtl.scene.cfgTextures) bReflection = this.c0(mtl.reflection);
     }
     if (this.flags & 2) {
         if (bDiffuse) bUV |= this.c0(mtl.diffuse);
@@ -541,7 +541,7 @@ shader3d.prototype.update = function(mtl) {
                 ft.push("normal=normalize(tsM*_n);");
             }
         }
-        if (mtl.space.cfgDbl) ft.push("if(!gl_FrontFacing)normal=-normal;");
+        if (mtl.scene.cfgDbl) ft.push("if(!gl_FrontFacing)normal=-normal;");
         ft.push("vec3 eyeDirection=normalize(wPosition.xyz-eye);vec3 reflDir;");
         if (_lights)
             for (i = 0; i < _lights.length; i++) {
@@ -649,7 +649,7 @@ shader3d.prototype.detach = function(gl) {
     this.textures = [];
     this.loadedtextures = 0;
 }
-shader3d.prototype.activate = function(space, mtl, tm, flags, newObj) {
+shader3d.prototype.activate = function(scene, mtl, tm, flags, newObj) {
     mtl = this.mtl;
     var gl = mtl.gl,
         i;
@@ -661,7 +661,7 @@ shader3d.prototype.activate = function(space, mtl, tm, flags, newObj) {
                 gl.activeTexture(gl.TEXTURE0 + t.slot);
                 var type = t.txt.ivtype;
                 gl.bindTexture(type, t.txt);
-                if (type == gl.TEXTURE_2D && space.e_ans && (t.txt.filter == IV.FILTER_MIPMAP)) gl.texParameterf(type, space.e_ans.TEXTURE_MAX_ANISOTROPY_EXT, space.e_ansMax);
+                if (type == gl.TEXTURE_2D && scene.e_ans && (t.txt.filter == IV.FILTER_MIPMAP)) gl.texParameterf(type, scene.e_ans.TEXTURE_MAX_ANISOTROPY_EXT, scene.e_ansMax);
                 gl.texParameteri(type, gl.TEXTURE_WRAP_S, t.wrapS);
                 gl.texParameteri(type, gl.TEXTURE_WRAP_T, t.wrapT);
                 gl.uniform1i(t.uniform, t.slot);
@@ -679,7 +679,7 @@ shader3d.prototype.activate = function(space, mtl, tm, flags, newObj) {
             case 4102:
                 {
                     var c = c = a.channel.color;
-                    if (flags & 256) c = vec3.lerp_r(c, space.clrSelection, 0.5);
+                    if (flags & 256) c = vec3.lerp_r(c, scene.clrSelection, 0.5);
                     gl.uniform3fv(s, c);
                 }
                 break;
@@ -705,13 +705,13 @@ shader3d.prototype.activate = function(space, mtl, tm, flags, newObj) {
                             gl.uniform3fv(s, a.light.dir);
                             break;
                         case 4113:
-                            gl.uniform3fv(s, space.window.viewFrom);
+                            gl.uniform3fv(s, scene.window.viewFrom);
                             break;
                         case 4114:
-                            gl.uniformMatrix4fv(s, false, space.modelviewTM);
+                            gl.uniformMatrix4fv(s, false, scene.modelviewTM);
                             break;
                         case 4115:
-                            gl.uniformMatrix4fv(s, false, space.projectionTM);
+                            gl.uniformMatrix4fv(s, false, scene.projectionTM);
                             break;
                         case 4116:
                             gl.uniform1f(s, mtl.phong);

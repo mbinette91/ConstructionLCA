@@ -8,6 +8,17 @@
 
 var MAX_SIMULTANEOUS_AJAX_REQUESTS = 50;
 
+function CreateMeshRequest(f, p) {
+    if (f == undefined) return null;
+    var r = new XMLHttpRequest();
+    path = f;
+    if (p) 
+        path = p + f;
+    r._requestUrl = path;
+    r.open("GET", path);
+    return r;
+}
+
 function MeshSheets() {
     this.sheets = {}
     this.inQueue = 0;
@@ -25,7 +36,7 @@ MeshSheets.prototype.get = function(sheet) {
 MeshSheets.prototype.remove = function(sheet) {
     delete this.sheets[sheet.ref];
 };
-MeshSheets.prototype.loadAll = function(space) {
+MeshSheets.prototype.loadAll = function(scene) {
     var complete = true
     for(var i in this.sheets) {
         var sheet = this.sheets[i]
@@ -35,20 +46,20 @@ MeshSheets.prototype.loadAll = function(space) {
         if (sheet.request)
             continue; // Answer is on it's way!
 
-        this.loadMeshSheet(space, sheet);
+        this.loadMeshSheet(scene, sheet);
         complete = false;
     }
 
     this.complete = complete && this.inQueue == 0;
 };
 
-MeshSheets.prototype.loadMeshSheet = function(space, sheet) {
+MeshSheets.prototype.loadMeshSheet = function(scene, sheet) {
     var that = this;
 
     var url = sheet.ref;
-    if(space.path)
-        url = space.path + url;
-    var request = CreateRequest(url);
+    if(scene.path)
+        url = scene.path + url;
+    var request = CreateMeshRequest(url);
     if (request) {
         sheet.request = request;
         this.inQueue++;
@@ -59,11 +70,11 @@ MeshSheets.prototype.loadMeshSheet = function(space, sheet) {
                     all_data = [all_data];
                 for(var i in all_data) {
                     var data = all_data[i];
-                    var mesh = new mesh3d(space.gl);
-                    mesh.initialize(space, data);
-                    if(data.guid && space.objects3d[data.guid]) // Link with the node3d object
-                        space.objects3d[data.guid].setObject(mesh);
-                    space.onMeshLoaded(mesh);
+                    var mesh = new mesh3d(scene.gl);
+                    mesh.initialize(scene, data);
+                    if(data.guid && scene.objects3d[data.guid]) // Link with the node3d object
+                        scene.objects3d[data.guid].setObject(mesh);
+                    scene.onMeshLoaded(mesh);
                 }
                 that.remove(sheet);
 

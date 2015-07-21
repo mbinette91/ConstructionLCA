@@ -69,8 +69,8 @@ TreeModule.prototype.display = function(tree) {
 }
 
 TreeModule.prototype.handleSelectStatusChanged = function(e, data) {
-	this.gui.preview.space.clearSelected(); // Clear everything
+	this.gui.preview.scene.clearSelected(); // Clear everything
 	for(var i in data.selected)
-    	this.gui.preview.space.selectObject(data.selected[i], data.selected.length > 1); // Reselect everything
+    	this.gui.preview.scene.selectObject(data.selected[i], data.selected.length > 1); // Reselect everything
     this.gui.preview.refreshSelectedObjectsInfo();
 }

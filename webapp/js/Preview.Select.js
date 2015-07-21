@@ -1,6 +1,6 @@
 PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
-    if(this.space.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
-        var node = this.space.selectedObjects[0];
+    if(this.scene.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
+        var node = this.scene.selectedObjects[0];
         if(node.data) {
             $("#selected-element-info .name .info").html(node.data.name);
             $("#selected-element-info .guid .info").html(node.data.guid);
@@ -223,12 +223,12 @@ node3d.prototype.hitTest = function(tm, info) {
 }
 
 function hitInfo_getWindow() {
-    return this.space.window;
+    return this.scene.window;
 }
 PreviewModule.prototype.hitTest = function(ray) {
-    if (this.space.root) {
+    if (this.scene.root) {
         var hitInfo = {
-            "space": this.space,
+            "scene": this.scene,
             "ray": ray,
             "length": 1e34,
             "getWindow": hitInfo_getWindow
@@ -236,14 +236,14 @@ PreviewModule.prototype.hitTest = function(ray) {
         var tm = mat4.create();
         mat4.identity(tm);
         hitInfo.itm = mat4.create();
-        this.space.root.traverse(tm, HitTestNode, hitInfo);
+        this.scene.root.traverse(tm, HitTestNode, hitInfo);
         if (hitInfo.node) {
             var n = hitInfo.node;
             while (n) {
                 if (n.state & 8) hitInfo.node = n;
                 n = n.parent;
             }
-            hitInfo.space = null;
+            hitInfo.scene = null;
             hitInfo.ray = null;
             return hitInfo;
         }
@@ -268,7 +268,7 @@ node3d.prototype.isSelected = function() {
     return this.state & 4;
 }
 
-space3d.prototype.Select = function(n, s, k) {
+Scene.prototype.Select = function(n, s, k) {
     var changes = false;
     if (this.root.Select(n, s, k)) {
         if(!k)
@@ -297,10 +297,10 @@ space3d.prototype.Select = function(n, s, k) {
 }
 
 /*Click on tree*/
-space3d.prototype.clearSelected = function() {
+Scene.prototype.clearSelected = function() {
     this.Select(null, false, false);
 }
-space3d.prototype.selectObject = function(guid, multiple) {
+Scene.prototype.selectObject = function(guid, multiple) {
     var node = this.objects3d[guid];
 
     if (node) {

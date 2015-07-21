@@ -101,8 +101,8 @@ PreviewModule.prototype.handleObjSelect = function(x, y, event, bDown) {
         var bCtrl = (event.ctrlKey == 1);
         var bSelect = true;
         if (bCtrl && n && n.state & 4) bSelect = false;
-        this.space.Select(n, bSelect, bCtrl);
-        this.gui.tree.setSelectedObjects(this.space.selectedObjects);
+        this.scene.Select(n, bSelect, bCtrl);
+        this.gui.tree.setSelectedObjects(this.scene.selectedObjects);
     }
 }
 PreviewModule.prototype.onMouseUp = function(event, touch) {
