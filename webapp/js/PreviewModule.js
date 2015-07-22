@@ -23,20 +23,55 @@ function PreviewModule(canvas) {
 }
 
 PreviewModule.prototype.initialize = function(file, path) {
-    this.initHardware();
-    if (this.gl) {
+    if (this.initializeGL()) {
         this.loadSpace(file, path);
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
         this.input.initialize();
         this.invalidate();
     }
+    else
+        console.log("PreviewModule.initialize: Could not initialize WebGL.");
+}
+
+PreviewModule.prototype.initializeGL = function() {
+    var n = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
+    for (var i = 0; i < n.length; i++) {
+        try {
+            this.gl = this.canvas.getContext(n[i], {
+                alpha: false
+            });
+            if (this.gl) {
+                this.gl.viewportWidth = this.canvas.width;
+                this.gl.viewportHeight = this.canvas.height;
+                break;
+            }
+        } catch (e) { 
+            continue; 
+        }
+    }
+    return this.gl != null;
+}
+
+PreviewModule.prototype.loadSpace = function(file, path) {
+    var that = this;
+    this.scene = new Scene(this, this.gl, path);
+    var r = new XMLHttpRequest();
+    r.open("GET", path + file);
+    r.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            that.scene.load(JSON.parse(this.responseText));
+            that.setDefView();
+        }
+    }
+    r.send();
 }
 
 PreviewModule.prototype.setSize = function(width, height) {
     $(this.canvas).attr("width", width);
     $(this.canvas).attr("height", height);
-    this.initHardware();
+    this.gl.viewportWidth = this.canvas.width;
+    this.gl.viewportHeight = this.canvas.height;
     this.invalidate();
 };
 
@@ -51,25 +86,6 @@ PreviewModule.prototype.setNodeInformation = function(data) {
     }
 }
 
-PreviewModule.prototype.initHardware = function() {
-    var n = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
-    for (var i = 0; i < n.length; i++) {
-        try {
-            this.gl = this.canvas.getContext(n[i], {
-                alpha: false
-            });
-        } catch (e) {}
-        if (this.gl) {
-            this.gl.viewportWidth = this.canvas.width;
-            this.gl.viewportHeight = this.canvas.height;
-            break;
-        }
-    }
-    if (!this.gl) {
-        console.log("PreviewModule.initHardware: Could not initialize WebGL.");
-    }
-    return this.gl != null;
-}
 PreviewModule.prototype.getView = function(i) {
     if (i) i.update(this);
     else i = new viewInfo(this);
@@ -98,19 +114,7 @@ PreviewModule.prototype.setDefView = function() {
     this.setViewImp(this.scene.view);
     this.invalidate(IV.INV_VERSION);
 }
-PreviewModule.prototype.loadSpace = function(file, path) {
-    var that = this;
-    this.scene = new Scene(this, this.gl, path);
-    var r = new XMLHttpRequest();
-    r.open("GET", path + file);
-    r.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            that.scene.load(JSON.parse(this.responseText));
-            that.setDefView();
-        }
-    }
-    r.send();
-}
+
 PreviewModule.prototype.setLights = function(l) {
     this.scene.lights = l;
     this.invalidate(IV.INV_MTLS);
