@@ -7,7 +7,6 @@ function Scene(preview, gl, path) {
     this.view = {"org":[-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "target" : [0, 0, 0], "fov" : 52.2338};
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
-    this.cfgDbl = true;
     this.cfgSelZOffset = false;
     this.textures = [];
     this.lights = 0;
@@ -128,12 +127,7 @@ Scene.prototype.renderQueue = function(items) {
     var gl = this.gl;
     for (var i = 0; i < c; i++) {
         var b = items[i];
-        var d = this.cfgDbl || ((b.state & 32) != 0);
-        if (d != a) {
-            if (d) gl.disable(gl.CULL_FACE);
-            else gl.enable(gl.CULL_FACE);
-            a = d;
-        }
+        var d = false;
         b.object.render(this, b);
     };
 };

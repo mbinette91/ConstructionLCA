@@ -27,6 +27,7 @@ PreviewModule.prototype.initialize = function(file, path) {
     if (this.gl) {
         this.loadSpace(file, path);
         this.gl.enable(this.gl.DEPTH_TEST);
+        this.gl.enable(this.gl.CULL_FACE);
         this.input.initialize();
         this.invalidate();
     }
@@ -109,25 +110,6 @@ PreviewModule.prototype.loadSpace = function(file, path) {
         }
     }
     r.send();
-}
-PreviewModule.prototype.getDoubleSided = function() {
-    return this.scene.cfgDbl;
-}
-PreviewModule.prototype.setDoubleSided = function(b) {
-    if (this.scene.cfgDbl != b) {
-        var s = this.scene;
-        s.cfgDbl = b;
-        s.invalidate(IV.INV_MTLS);
-    }
-}
-PreviewModule.prototype.getTextures = function() {
-    return this.scene.cfgTextures;
-}
-PreviewModule.prototype.setTextures = function(b) {
-    if (this.scene.cfgTextures != b) {
-        this.scene.cfgTextures = b;
-        this.invalidate();
-    }
 }
 PreviewModule.prototype.setLights = function(l) {
     this.scene.lights = l;
