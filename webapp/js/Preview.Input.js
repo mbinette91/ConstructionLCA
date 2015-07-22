@@ -5,23 +5,22 @@ PreviewModule.InputHandler = function(preview) {
     this.cameraMode = 0;
     this.LX = 0;
     this.LY = 0;
-    this.mouseMoved = false;
 
     this.mouseCaptured = false;
+    this.mouseMoving = false;
 }
-
 
 PreviewModule.InputHandler.prototype.initialize = function() {
     var that = this;
     this.input = {
         "mousemove": function(event) {
-            return that._onMouseMove(event);
+            return that.onMouseMove(event);
         },
         "mousedown": function(event) {
-            return that.onMouseDown(event, false);
+            return that.onMouseDown(event);
         },
         "mouseup": function(event) {
-            return that.onMouseUp(event, false);
+            return that.onMouseUp(event);
         },
         "dblclick": function(event) {
             return that.onDoubleClick(event);
@@ -51,11 +50,27 @@ PreviewModule.InputHandler.prototype.addEvent = function(canvas, event_name, fun
         canvas.addEventListener(event_name, funct);
 }
 
+PreviewModule.InputHandler.prototype.decodeButtons = function(e) {
+    var btn = 0;
+    if (e.buttons == undefined) {
+        if (e.which == 1) btn = 1;
+        else
+        if (e.which == 2) btn = 4;
+        else
+        if (e.which == 3) btn = 2;
+        else btn = 1;
+    } else btn = e.buttons;
+    return btn;
+}
+PreviewModule.InputHandler.prototype.preventDefault = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+}
 PreviewModule.InputHandler.prototype.releaseCapture = function() {
     if (this.mouseCaptured) {
         var e = this.preview.canvas,
             i = this.input;
         this.mouseCaptured = false;
+        this.mouseMovedWhileCaptured = false;
     }
 }
 PreviewModule.InputHandler.prototype.setCapture = function() {
@@ -63,12 +78,12 @@ PreviewModule.InputHandler.prototype.setCapture = function() {
         var e = this.preview.canvas,
             i = this.input;
         this.mouseCaptured = true;
+        this.mouseMovedWhileCaptured = false;
     }
 }
 
 PreviewModule.InputHandler.prototype.handleObjSelect = function(x, y, event, bDown) {
     if (!bDown) {
-        this.mouseMoved = false;
         var ray = this.preview.getRay(x, y);
         var h = this.preview.hitTest(ray);
         var n = h ? h.node : null;
@@ -79,13 +94,6 @@ PreviewModule.InputHandler.prototype.handleObjSelect = function(x, y, event, bDo
         this.preview.gui.tree.setSelectedObjects(this.preview.scene.selectedObjects);
     }
 }
-PreviewModule.InputHandler.prototype.onMouseUp = function(event) {
-    var e = event;
-    var p = this.getClientPoint(e);
-    var flags = 3;
-    if ((!this.mouseMoved) && (flags & 1)) this.handleObjSelect(this.LX, this.LY, event, false);
-    this.releaseCapture();
-};
 PreviewModule.InputHandler.prototype.getClientPoint = function(e) {
     var r = this.preview.canvas.getBoundingClientRect();
     var x, y;
@@ -102,22 +110,13 @@ PreviewModule.InputHandler.prototype.getClientPoint = function(e) {
         "r": r
     }
 }
-PreviewModule.InputHandler.prototype.decodeButtons = function(e) {
-    var btn = 0;
-    if (e.buttons == undefined) {
-        if (e.which == 1) btn = 1;
-        else
-        if (e.which == 2) btn = 4;
-        else
-        if (e.which == 3) btn = 2;
-        else btn = 1;
-    } else btn = e.buttons;
-    return btn;
-}
-PreviewModule.InputHandler.prototype.preventDefault = function(e) {
-    if (e && e.preventDefault) e.preventDefault();
-}
 
+PreviewModule.InputHandler.prototype.onMouseUp = function(event) {
+    var e = event;
+    var p = this.getClientPoint(e);
+    if (!this.mouseMovedWhileCaptured) this.handleObjSelect(this.LX, this.LY, event, false);
+    this.releaseCapture();
+};
 PreviewModule.InputHandler.prototype.onDoubleClick = function(event) {
     this.preventDefault(event);
     event.stopPropagation();
@@ -125,23 +124,6 @@ PreviewModule.InputHandler.prototype.onDoubleClick = function(event) {
     return true;
 }
 
-PreviewModule.InputHandler.prototype._onMouseMove = function(event) {
-    if (this.mouseCaptured) {
-        this.mouseMoved = true;
-        var b = this.decodeButtons(event, false);
-        if (b) this.onMouseMove(event, false);
-        else this.onMouseUp(event, false);
-        this.preventDefault(event);
-        event.stopPropagation();
-        this.mouseMoved = false;
-        return true;
-    } else {
-        this.mouseMoved = true;
-        if (this.onMouseHover) this.onMouseHover(event);
-        this.mouseMoved = false;
-    }
-    return false;
-}
 PreviewModule.InputHandler.prototype.onMouseDown = function(event) {
     this.setCapture();
 
@@ -149,7 +131,6 @@ PreviewModule.InputHandler.prototype.onMouseDown = function(event) {
     var p = this.getClientPoint(e);
     this.LX = p.x;
     this.LY = p.y;
-    this.mouseMoved = false;
     p.b = this.decodeButtons(event);
     this.preventDefault(event);
 }
@@ -158,7 +139,7 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
     var p = this.getClientPoint(e);
     var dX = p.x - this.LX,
         dY = p.y - this.LY;
-    if (this.mouseMoved || Math.abs(dX) || Math.abs(dY)) {
+    if (this.mouseCaptured && (Math.abs(dX) || Math.abs(dY))) {
         var b = p.b = this.decodeButtons(event);
         var invF = 0;
         if (this.cameraMode && b == 1) {
@@ -181,7 +162,8 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
         this.preview.invalidate();
         this.LX = p.x;
         this.LY = p.y;
-        this.mouseMoved = true;
+
+        this.mouseMovedWhileCaptured = true;
     }
 }
 PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
@@ -199,6 +181,7 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
     this.preventDefault(event);
 }
 
+// Scene Transformations
 PreviewModule.InputHandler.prototype.doPan = function(dX, dY) {
     var v = this.preview.getView();
     var gl = this.gl;
