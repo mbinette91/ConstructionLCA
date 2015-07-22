@@ -144,11 +144,11 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
             if (this.cameraMode == 2) b = 4;
         }
         if (b & 4) {
-            this.translate(dX, dY);
+            this.move(dX, dY);
             invF = IV.INV_VERSION;
         } else
         if (b & 1) {
-            this.rotate(dX, dY);
+            this.orbit(dX, dY);
             invF = IV.INV_VERSION;
         }
         this.preview.invalidate();
@@ -174,7 +174,7 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
 }
 
 // Scene Transformations
-PreviewModule.InputHandler.prototype.translate = function(dX, dY) {
+PreviewModule.InputHandler.prototype.move = function(dX, dY) {
     var v = this.preview.getView();
     var gl = this.gl;
     var x0 = gl.viewportWidth / 2,
@@ -187,7 +187,7 @@ PreviewModule.InputHandler.prototype.translate = function(dX, dY) {
     vec3.add_ip(v.to, d);
     this.preview.setViewImp(v);
 }
-PreviewModule.InputHandler.prototype.rotate = function(dX, dY) {
+PreviewModule.InputHandler.prototype.orbit = function(dX, dY) {
     var v = this.preview.getView(),
         tm = [];
     var _u = v.getUpVector();

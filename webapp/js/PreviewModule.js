@@ -65,7 +65,7 @@ PreviewModule.prototype.initHardware = function() {
         }
     }
     if (!this.gl) {
-        alert("Could not initialise WebGL");
+        console.log("PreviewModule.initHardware: Could not initialize WebGL.");
     }
     return this.gl != null;
 }
@@ -98,16 +98,14 @@ PreviewModule.prototype.setDefView = function() {
     this.invalidate(IV.INV_VERSION);
 }
 PreviewModule.prototype.loadSpace = function(file, path) {
+    var that = this;
     this.scene = new Scene(this, this.gl, path);
     var r = new XMLHttpRequest();
     r.open("GET", path + file);
-    r.ivspace = this.scene;
-    r.ivwnd = this;
-    var that = this;
     r.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            this.ivspace.load(JSON.parse(this.responseText));
-            this.ivwnd.setDefView();
+            that.scene.load(JSON.parse(this.responseText));
+            that.setDefView();
         }
     }
     r.send();
