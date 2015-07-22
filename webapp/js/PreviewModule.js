@@ -29,7 +29,6 @@ PreviewModule.prototype.initialize = function(file, path) {
         this.loadSpace(file, path);
         this.gl.enable(this.gl.DEPTH_TEST);
         this.input.initialize();
-        this.input.initEvents();
         this.invalidate();
     }
 }

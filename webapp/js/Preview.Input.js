@@ -1,80 +1,60 @@
 PreviewModule.InputHandler = function(preview) {
     this.preview = preview;
 
-    this.lastTouchDistance = -1;
     this.orbitMode = 1;
     this.cameraMode = 0;
     this.LX = 0;
     this.LY = 0;
-    this.mouseCaptured = false;
-    this.mouseCancelPopup = false;
     this.mouseMoved = false;
+
+    this.mouseCaptured = false;
 }
 
 
 PreviewModule.InputHandler.prototype.initialize = function() {
     var that = this;
     this.input = {
-        "move": function(event) {
+        "mousemove": function(event) {
             return that._onMouseMove(event);
         },
-        "down": function(event) {
+        "mousedown": function(event) {
             return that.onMouseDown(event, false);
         },
-        "up": function(event) {
+        "mouseup": function(event) {
             return that.onMouseUp(event, false);
         },
-        "dbl": function(event) {
-            return that._onDblClick(event);
+        "dblclick": function(event) {
+            return that.onDoubleClick(event);
         },
-        "touchstart": function(event) {
-            return that.onMouseDown(event, true);
+        "contextmenu": function(event) {
+            that.preventDefault(event); // Kill the normal context menu.
         },
-        "touchcancel": function(event) {
-            return that.onTouchCancel(event);
-        },
-        "touchend": function(event) {
-            return that.onMouseUp(event);
-        },
-        "touchmove": function(event) {
-            return that.onTouchMove(event);
-        },
-        "menu": function(event) {
-            return that._onContextMenu(event);
-        },
-        "wheel": function(event) {
-            that.onMouseWheel(event);
+        "mousewheel": function(event) {
+            return that.onMouseWheel(event);
         }
     };
+
+    if(/Firefox/i.test(navigator.userAgent)) {
+        // https://developer.mozilla.org/en-US/docs/Web/Events/DOMMouseScroll
+        this.input["DOMMouseScroll"] = this.input["mousewheel"];
+        delete this.input["mousewheel"];
+    }
+
+    // Add the event listeners defined above.
+    for(var event_name in this.input)
+        this.addEvent(this.preview.canvas, event_name, this.input[event_name]);
 }
-PreviewModule.InputHandler.prototype.initEvents = function() {
-    var w = (/Firefox/i.test(navigator.userAgent)) ? "DOMMouseScroll" : "mousewheel",
-        c = this.preview.canvas,
-        i = this.input;
-    this.setEvent(c, w, i.wheel);
-    this.setEvent(c, "mousedown", i.down);
-    this.setEvent(c, "mousemove", i.move);
-    this.setEvent(c, "dblclick", i.dbl);
-    this.setEvent(c, "contextmenu", i.menu);
-    this.setEvent(c, "touchstart", i.touchstart);
-    this.setEvent(c, "selectstart", function() {
-        return false;
-    });
+PreviewModule.InputHandler.prototype.addEvent = function(canvas, event_name, funct) {
+    if (canvas.attachEvent) 
+        canvas.attachEvent("on" + event_name, funct);
+    else if (canvas.addEventListener) 
+        canvas.addEventListener(event_name, funct);
 }
+
 PreviewModule.InputHandler.prototype.releaseCapture = function() {
     if (this.mouseCaptured) {
         var e = this.preview.canvas,
             i = this.input;
-        if (e.releaseCapture) e.releaseCapture();
-        else {
-            e = document;
-            this.delEvent(e, "mousemove", i.move);
-            this.delEvent(e, "contextmenu", i.menu);
-        }
-        this.delEvent(e, "mouseup", i.up);
-        this.delEvent(e, "touchmove", i.touchmove);
-        this.delEvent(e, "touchend", i.touchend);
-        this.delEvent(e, "touchcancel", i.touchcancel);
         this.mouseCaptured = false;
     }
 }
@@ -82,26 +62,8 @@ PreviewModule.InputHandler.prototype.setCapture = function() {
     if (!this.mouseCaptured) {
         var e = this.preview.canvas,
             i = this.input;
-        if (e.setCapture) e.setCapture();
-        else {
-            e = document;
-            this.setEvent(e, "mousemove", i.move);
-            this.setEvent(e, "contextmenu", i.menu);
-        }
-        this.setEvent(e, "mouseup", i.up);
-        this.setEvent(e, "touchmove", i.touchmove);
-        this.setEvent(e, "touchend", i.touchend);
-        this.setEvent(e, "touchcancel", i.touchcancel);
         this.mouseCaptured = true;
     }
-}
-PreviewModule.InputHandler.prototype.delEvent = function(d, e, f) {
-    if (d.detachEvent) d.detachEvent("on" + e, f);
-    else if (d.removeEventListener) d.removeEventListener(e, f);
-}
-PreviewModule.InputHandler.prototype.setEvent = function(d, e, f) {
-    if (d.attachEvent) d.attachEvent("on" + e, f);
-    else if (d.addEventListener) d.addEventListener(e, f);
 }
 
 PreviewModule.InputHandler.prototype.handleObjSelect = function(x, y, event, bDown) {
@@ -117,27 +79,17 @@ PreviewModule.InputHandler.prototype.handleObjSelect = function(x, y, event, bDo
         this.preview.gui.tree.setSelectedObjects(this.preview.scene.selectedObjects);
     }
 }
-PreviewModule.InputHandler.prototype.onMouseUp = function(event, touch) {
+PreviewModule.InputHandler.prototype.onMouseUp = function(event) {
     var e = event;
-    if (touch) {
-        if (event.touches.length) e = event.touches[0];
-        else e = null;
-    }
-    var p = this.getClientPoint(e, touch);
+    var p = this.getClientPoint(e);
     var flags = 3;
     if ((!this.mouseMoved) && (flags & 1)) this.handleObjSelect(this.LX, this.LY, event, false);
     this.releaseCapture();
 };
-PreviewModule.InputHandler.prototype.getTouchDistance = function(e) {
-    var dx = e.touches[0].clientX - e.touches[1].clientX,
-        dy = e.touches[0].clientY - e.touches[1].clientY;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-PreviewModule.InputHandler.prototype.getClientPoint = function(e, touch) {
+PreviewModule.InputHandler.prototype.getClientPoint = function(e) {
     var r = this.preview.canvas.getBoundingClientRect();
     var x, y;
     if (e) {
-        if (touch && e.touches && e.touches.length) e = e.touches[0];
         x = e.clientX - r.left;
         y = e.clientY - r.top;
     } else {
@@ -150,12 +102,8 @@ PreviewModule.InputHandler.prototype.getClientPoint = function(e, touch) {
         "r": r
     }
 }
-PreviewModule.InputHandler.prototype.decodeButtons = function(e, bt) {
+PreviewModule.InputHandler.prototype.decodeButtons = function(e) {
     var btn = 0;
-    if (bt && e.touches != undefined) {
-        if (e.touches.length >= 3) return 4;
-        return 1;
-    }
     if (e.buttons == undefined) {
         if (e.which == 1) btn = 1;
         else
@@ -166,40 +114,24 @@ PreviewModule.InputHandler.prototype.decodeButtons = function(e, bt) {
     } else btn = e.buttons;
     return btn;
 }
-PreviewModule.InputHandler.prototype.pd = function(e) {
+PreviewModule.InputHandler.prototype.preventDefault = function(e) {
     if (e && e.preventDefault) e.preventDefault();
 }
-PreviewModule.InputHandler.prototype._onContextMenu = function(event) {
-    this.pd(event);
-    if (this.mouseCancelPopup) {
-        this.mouseCancelPopup = false;
-        return false;
-    }
-    if (this.onContextMenu) this.onContextMenu(event);
-    return true;
-}
-PreviewModule.InputHandler.prototype._onDblClick = function(event) {
-    if (this.onDblClick) this.onDblClick(event, false);
-    this.pd(event);
+
+PreviewModule.InputHandler.prototype.onDoubleClick = function(event) {
+    this.preventDefault(event);
     event.stopPropagation();
+    //TO-DO: Look at the selected camera (only if CTRL is not pressed... Else behave like a normal double click.)
     return true;
 }
-PreviewModule.InputHandler.prototype.onTouchMove = function(event) {
-    this.onMouseMove(event, true);
-    this.pd(event);
-    return false;
-}
-PreviewModule.InputHandler.prototype.onTouchCancel = function(event) {
-    this.onMouseUp(event, true);
-    if (event.cancelable) this.pd(event);
-}
+
 PreviewModule.InputHandler.prototype._onMouseMove = function(event) {
     if (this.mouseCaptured) {
         this.mouseMoved = true;
         var b = this.decodeButtons(event, false);
         if (b) this.onMouseMove(event, false);
         else this.onMouseUp(event, false);
-        this.pd(event);
+        this.preventDefault(event);
         event.stopPropagation();
         this.mouseMoved = false;
         return true;
@@ -210,46 +142,24 @@ PreviewModule.InputHandler.prototype._onMouseMove = function(event) {
     }
     return false;
 }
-PreviewModule.InputHandler.prototype.onMouseDown = function(event, touch) {
+PreviewModule.InputHandler.prototype.onMouseDown = function(event) {
     this.setCapture();
 
     var e = event;
-    this.lastTouchDistance = -1;
-    if (touch) {
-        e = event.touches[0];
-        if (event.touches.length == 2) this.lastTouchDistance = this.getTouchDistance(event);
-    }
-    var p = this.getClientPoint(e, touch);
+    var p = this.getClientPoint(e);
     this.LX = p.x;
     this.LY = p.y;
     this.mouseMoved = false;
-    p.b = this.decodeButtons(event, touch);
-    this.pd(event);
+    p.b = this.decodeButtons(event);
+    this.preventDefault(event);
 }
-PreviewModule.InputHandler.prototype.onMouseMove = function(event, touch) {
+PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
     var e = event;
-    var p = this.getClientPoint(e, touch);
-    if (touch) {
-        e = event.touches[0];
-        if (event.touches.length == 2) {
-            var d = this.getTouchDistance(event);
-            if (this.lastTouchDistance != d) {
-                if (this.lastTouchDistance > 0) {
-                    var _d = this.lastTouchDistance - d;
-                    this.doFOV(_d, _d);
-                    this.preview.invalidate(IV.INV_VERSION);
-                }
-                this.lastTouchDistance = d;
-                this.LX = p.x;
-                this.LY = p.y;
-            } else this.lastTouchDistance - 1;
-            return;
-        }
-    }
+    var p = this.getClientPoint(e);
     var dX = p.x - this.LX,
         dY = p.y - this.LY;
     if (this.mouseMoved || Math.abs(dX) || Math.abs(dY)) {
-        var b = p.b = this.decodeButtons(event, touch);
+        var b = p.b = this.decodeButtons(event);
         var invF = 0;
         if (this.cameraMode && b == 1) {
             if (this.cameraMode == 1) b = 2;
@@ -267,7 +177,6 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event, touch) {
         if (b & 2) {
             if (!this.doFOV(dX, dY)) return;
             invF = IV.INV_VERSION;
-            this.mouseCancelPopup = true;
         }
         this.preview.invalidate();
         this.LX = p.x;
@@ -287,8 +196,9 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
     }
     this.doDolly(0, d);
     this.preview.invalidate(IV.INV_VERSION);
-    this.pd(event);
+    this.preventDefault(event);
 }
+
 PreviewModule.InputHandler.prototype.doPan = function(dX, dY) {
     var v = this.preview.getView();
     var gl = this.gl;
