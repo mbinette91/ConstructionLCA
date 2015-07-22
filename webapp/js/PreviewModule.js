@@ -13,9 +13,6 @@ var IV = {
 function PreviewModule(canvas) {
     this.canvas = canvas;
     this.mvMatrix = mat4.create();
-    this.viewFrom = [0, 0, 6];
-    this.viewTo = [0, 0, 0];
-    this.viewUp = [0, 1, 0];
     this.bkColor = 0xcccccc;
     this._drawScene_Timeout = false;
 
@@ -61,7 +58,6 @@ PreviewModule.prototype.loadSpace = function(file, path) {
     r.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             that.scene.load(JSON.parse(this.responseText));
-            that.setDefView();
         }
     }
     r.send();
@@ -86,42 +82,13 @@ PreviewModule.prototype.setNodeInformation = function(data) {
     }
 }
 
-PreviewModule.prototype.getView = function(i) {
-    if (i) i.update(this);
-    else i = new viewInfo(this);
-    return i;
-}
-PreviewModule.prototype.setViewImp = function(v) {
-    vec3.cpy(this.viewFrom, v.from || v.org);
-    vec3.cpy(this.viewTo, v.to || v.target);
-    vec3.cpy(this.viewUp, v.up);
-    var _dir = [],
-        _up = [];
-    vec3.subtractN(this.viewTo, this.viewFrom, _dir);
-    vec3.subtractN(this.viewUp, this.viewFrom, _up);
-    var _dot = vec3.dot(_dir, _up);
-    if (Math.abs(_dot) > 1e-5) {
-        var a2 = [],
-            a1 = [];
-        vec3.cross_normalize(_dir, _up, a2);
-        vec3.cross_normalize(_dir, a2, a1);
-        _dot = vec3.dot(_up, a1);
-        if (_dot < 0) vec3.scale(a1, -1);
-        vec3.add(this.viewFrom, a1, this.viewUp);
-    }
-}
-PreviewModule.prototype.setDefView = function() {
-    this.setViewImp(this.scene.view);
-    this.invalidate(IV.INV_VERSION);
-}
-
 PreviewModule.prototype.setLights = function(l) {
     this.scene.lights = l;
     this.invalidate(IV.INV_MTLS);
 }
 
 PreviewModule.prototype.updateMVTM = function() {
-    mat4.lookAt(this.viewFrom, this.viewTo, this.getUpVector(), this.mvMatrix);
+    mat4.lookAt(this.scene.view.from, this.scene.view.to, this.getUpVector(), this.mvMatrix);
 }
 PreviewModule.prototype.drawScene = function() {
     var gl = this.gl;
@@ -331,37 +298,4 @@ function indexOf(a, b) {
         if (a[i] == b) return i;
     }
     return -1;
-}
-
-function viewInfo(v) {
-    this.from = [];
-    this.to = [];
-    this.up = [];
-    this.update(v);
-}
-viewInfo.prototype.update = function(from, to, up) {
-    if (from) {
-        if (to) {
-            vec3.cpy(this.from, from);
-            vec3.cpy(this.to, to);
-            vec3.cpy(this.up, up);
-        } else {
-            var v = from;
-            vec3.cpy(this.from, v.viewFrom || v.from);
-            vec3.cpy(this.to, v.viewTo || v.to);
-            vec3.cpy(this.up, v.viewUp || v.up);
-        }
-    }
-}
-viewInfo.prototype.getUpVector = function(v) {
-    return vec3.subtract(this.up, this.from, v || []);
-}
-viewInfo.prototype.getViewVector = function(v) {
-    return vec3.subtract(this.to, this.from, v || []);
-}
-viewInfo.prototype.getViewVectorN = function(v) {
-    return vec3.subtractN(this.to, this.from, v || []);
-}
-viewInfo.prototype.compare = function(v) {
-    return (vec3.compare(this.from, v.from, 1e-6) && vec3.compare(this.to, v.to, 1e-6) && vec3.compare(this.up, v.up, 1e-6));
 }

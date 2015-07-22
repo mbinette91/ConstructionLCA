@@ -175,7 +175,7 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
 
 // Scene Transformations
 PreviewModule.InputHandler.prototype.move = function(dX, dY) {
-    var v = this.preview.getView();
+    var v = this.preview.scene.view;
     var gl = this.gl;
     var x0 = gl.viewportWidth / 2,
         y0 = gl.viewportHeight / 2;
@@ -185,10 +185,9 @@ PreviewModule.InputHandler.prototype.move = function(dX, dY) {
     vec3.add_ip(v.from, d);
     vec3.add_ip(v.up, d);
     vec3.add_ip(v.to, d);
-    this.preview.setViewImp(v);
 }
 PreviewModule.InputHandler.prototype.orbit = function(dX, dY) {
-    var v = this.preview.getView(),
+    var v = this.preview.scene.view,
         tm = [];
     var _u = v.getUpVector();
     if (dX && this.orbitMode) {
@@ -214,10 +213,9 @@ PreviewModule.InputHandler.prototype.orbit = function(dX, dY) {
         mat4.mulPoint(tm, v.from);
         mat4.mulPoint(tm, v.up);
     }
-    this.preview.setViewImp(v);
 }
 PreviewModule.InputHandler.prototype.zoom = function(zoom) {
-    var v = this.preview.getView();
+    var v = this.preview.scene.view;
     var dir = vec3.sub_r(v.from, v.to);
     var l = vec3.length(dir);
     var _l = l + l * zoom / 100;
@@ -227,6 +225,5 @@ PreviewModule.InputHandler.prototype.zoom = function(zoom) {
     var delta = vec3.sub_r(_new, v.from);
     vec3.add_ip(v.from, delta);
     vec3.add_ip(v.up, delta);
-    this.preview.setViewImp(v);
     return true;
 }

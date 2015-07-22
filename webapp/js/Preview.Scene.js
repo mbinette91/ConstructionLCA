@@ -4,7 +4,7 @@ function Scene(preview, gl, path) {
 	this.path = path;
     this.cfgTextures = true;
     this.root = null;
-    this.view = {"org":[-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "target" : [0, 0, 0], "fov" : 52.2338};
+    this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "to" : [0, 0, 0], "fov" : 52.2338});
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
     this.cfgSelZOffset = false;
@@ -36,6 +36,22 @@ function Scene(preview, gl, path) {
     }
 }
 
+Scene.View = function(data) {
+    for(name in data)
+        this[name] = data[name];
+}
+Scene.View.prototype.getUpVector = function(v) {
+    return vec3.subtract(this.up, this.from, v || []);
+}
+Scene.View.prototype.getViewVector = function(v) {
+    return vec3.subtract(this.to, this.from, v || []);
+}
+Scene.View.prototype.getViewVectorN = function(v) {
+    return vec3.subtractN(this.to, this.from, v || []);
+}
+Scene.View.prototype.compare = function(v) {
+    return (vec3.compare(this.from, v.from, 1e-6) && vec3.compare(this.to, v.to, 1e-6) && vec3.compare(this.up, v.up, 1e-6));
+}
 
 Scene.prototype.onDataLoaded = function() {
     this.materials.initialize();
