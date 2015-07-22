@@ -11,17 +11,16 @@ var IV = {
 };
 
 function PreviewModule(canvas) {
+    this.scene = null; // You must call PreviewModule::loadScene!
     this.canvas = canvas;
-    this.mvMatrix = mat4.create();
-    this.bkColor = 0xcccccc;
-    this._drawScene_Timeout = false;
-
+    this.bgColor = rgb(102, 102, 102);
     this.input = new PreviewModule.InputHandler(this);
+    this._drawScene_Timeout = false;
 }
 
 PreviewModule.prototype.initialize = function(file, path) {
     if (this.initializeGL()) {
-        this.loadSpace(file, path);
+        this.loadScene(file, path);
         this.gl.enable(this.gl.DEPTH_TEST);
         this.gl.enable(this.gl.CULL_FACE);
         this.input.initialize();
@@ -35,9 +34,7 @@ PreviewModule.prototype.initializeGL = function() {
     var n = ["webgl", "experimental-webgl", "webkit-3d", "moz-webgl"];
     for (var i = 0; i < n.length; i++) {
         try {
-            this.gl = this.canvas.getContext(n[i], {
-                alpha: false
-            });
+            this.gl = this.canvas.getContext(n[i], { alpha: false });
             if (this.gl) {
                 this.gl.viewportWidth = this.canvas.width;
                 this.gl.viewportHeight = this.canvas.height;
@@ -50,7 +47,7 @@ PreviewModule.prototype.initializeGL = function() {
     return this.gl != null;
 }
 
-PreviewModule.prototype.loadSpace = function(file, path) {
+PreviewModule.prototype.loadScene = function(file, path) {
     var that = this;
     this.scene = new Scene(this, this.gl, path);
     var r = new XMLHttpRequest();
@@ -82,27 +79,15 @@ PreviewModule.prototype.setNodeInformation = function(data) {
     }
 }
 
-PreviewModule.prototype.setLights = function(l) {
-    this.scene.lights = l;
-    this.invalidate(IV.INV_MTLS);
-}
-
-PreviewModule.prototype.updateMVTM = function() {
-    mat4.lookAt(this.scene.view.from, this.scene.view.to, this.getUpVector(), this.mvMatrix);
-}
 PreviewModule.prototype.drawScene = function() {
     var gl = this.gl;
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    var bk = this.bkColor;
-    var r = ((bk >> 16) & 0xff) / 255.0;
-    var g = ((bk >> 8) & 0xff) / 255.0;
-    var b = (bk & 0xff) / 255.0;
-    gl.clearColor(r, g, b, 1);
+    gl.clearColor(this.bgColor[0], this.bgColor[1], this.bgColor[2], 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    this.updateMVTM();
-    this.scene.render(this.mvMatrix);
+    this.scene.render();
     this._drawScene_Timeout = null;
 }
+
 PreviewModule.prototype.invalidate = function(f) {
     if (f !== undefined) {
         if (f & IV.INV_MTLS && this.scene.materials) {

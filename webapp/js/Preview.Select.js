@@ -21,10 +21,6 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
     }
 }
 
-
-PreviewModule.prototype.getUpVector = function() {
-    return vec3.sub_r(this.scene.view.up, this.scene.view.from);
-}
 PreviewModule.prototype.getRay = function(x, y, ray) {
     var gl = this.gl,
         w = gl.viewportWidth,
@@ -34,7 +30,7 @@ PreviewModule.prototype.getRay = function(x, y, ray) {
         p2 = this.scene.view.to;
     var dir = vec3.sub_r(this.scene.view.to, this.scene.view.from);
     var dirLen = vec3.length(dir);
-    var up = this.getUpVector();
+    var up = this.scene.view.getUpVector();
     var k = Math.tan(Math.PI * this.scene.view.fov / 360);
     var h2 = h / 2,
         w2 = w / 2;

@@ -2,6 +2,8 @@ function Scene(preview, gl, path) {
     this.preview = preview;
     this.gl = gl;
 	this.path = path;
+    this.mvMatrix = mat4.create();
+
     this.cfgTextures = true;
     this.root = null;
     this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "to" : [0, 0, 0], "fov" : 52.2338});
@@ -193,7 +195,11 @@ Scene.prototype.updatePrjTM = function(tm) {
     }
     mat4.perspective(this.view.fov, gl.viewportWidth / gl.viewportHeight, near, far, this.projectionTM);
 };
-Scene.prototype.render = function(tm) {
+Scene.prototype.updateMVTM = function() {
+    return mat4.lookAt(this.view.from, this.view.to, this.view.getUpVector(), this.mvMatrix);
+}
+Scene.prototype.render = function() {
+    var tm = this.updateMVTM();
     if (this.root) {
         if(!this.meshSheets.complete)
             this.meshSheets.loadAll(this);
