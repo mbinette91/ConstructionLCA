@@ -16,7 +16,6 @@ function PreviewModule(canvas) {
     this.viewFrom = [0, 0, 6];
     this.viewTo = [0, 0, 0];
     this.viewUp = [0, 1, 0];
-    this.fov = 90;
     this.bkColor = 0xcccccc;
     this._drawScene_Timeout = false;
 
@@ -76,7 +75,6 @@ PreviewModule.prototype.getView = function(i) {
     return i;
 }
 PreviewModule.prototype.setViewImp = function(v) {
-    if (v.fov) this.fov = v.fov;
     vec3.cpy(this.viewFrom, v.from || v.org);
     vec3.cpy(this.viewTo, v.to || v.target);
     vec3.cpy(this.viewUp, v.up);

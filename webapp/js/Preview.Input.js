@@ -67,16 +67,12 @@ PreviewModule.InputHandler.prototype.preventDefault = function(e) {
 }
 PreviewModule.InputHandler.prototype.releaseCapture = function() {
     if (this.mouseCaptured) {
-        var e = this.preview.canvas,
-            i = this.input;
         this.mouseCaptured = false;
         this.mouseMovedWhileCaptured = false;
     }
 }
 PreviewModule.InputHandler.prototype.setCapture = function() {
     if (!this.mouseCaptured) {
-        var e = this.preview.canvas,
-            i = this.input;
         this.mouseCaptured = true;
         this.mouseMovedWhileCaptured = false;
     }
@@ -148,15 +144,11 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
             if (this.cameraMode == 2) b = 4;
         }
         if (b & 4) {
-            this.doPan(dX, dY);
+            this.translate(dX, dY);
             invF = IV.INV_VERSION;
         } else
         if (b & 1) {
-            this.doOrbit(dX, dY);
-            invF = IV.INV_VERSION;
-        } else
-        if (b & 2) {
-            if (!this.doFOV(dX, dY)) return;
+            this.rotate(dX, dY);
             invF = IV.INV_VERSION;
         }
         this.preview.invalidate();
@@ -176,13 +168,13 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
         else if (d < -10) d = -10;
         d *= 4;
     }
-    this.doDolly(0, d);
+    this.zoom(d);
     this.preview.invalidate(IV.INV_VERSION);
     this.preventDefault(event);
 }
 
 // Scene Transformations
-PreviewModule.InputHandler.prototype.doPan = function(dX, dY) {
+PreviewModule.InputHandler.prototype.translate = function(dX, dY) {
     var v = this.preview.getView();
     var gl = this.gl;
     var x0 = gl.viewportWidth / 2,
@@ -195,7 +187,7 @@ PreviewModule.InputHandler.prototype.doPan = function(dX, dY) {
     vec3.add_ip(v.to, d);
     this.preview.setViewImp(v);
 }
-PreviewModule.InputHandler.prototype.doOrbit = function(dX, dY) {
+PreviewModule.InputHandler.prototype.rotate = function(dX, dY) {
     var v = this.preview.getView(),
         tm = [];
     var _u = v.getUpVector();
@@ -224,11 +216,11 @@ PreviewModule.InputHandler.prototype.doOrbit = function(dX, dY) {
     }
     this.preview.setViewImp(v);
 }
-PreviewModule.InputHandler.prototype.doDolly = function(dX, dY) {
+PreviewModule.InputHandler.prototype.zoom = function(zoom) {
     var v = this.preview.getView();
     var dir = vec3.sub_r(v.from, v.to);
     var l = vec3.length(dir);
-    var _l = l + l * dY / 100;
+    var _l = l + l * zoom / 100;
     if (_l < 1e-6) return false;
     vec3.scale_ip(dir, _l / l);
     var _new = vec3.add_r(v.to, dir);
@@ -237,15 +229,4 @@ PreviewModule.InputHandler.prototype.doDolly = function(dX, dY) {
     vec3.add_ip(v.up, delta);
     this.preview.setViewImp(v);
     return true;
-}
-PreviewModule.InputHandler.prototype.doFOV = function(dX, dY) {
-    var fov = this.fov + dY / 8;
-    if (fov >= 175) fov = 175;
-    else
-    if (fov <= 1) fov = 1;
-    if (fov != this.fov) {
-        this.fov = fov;
-        return true;
-    }
-    return false;
 }

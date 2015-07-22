@@ -1,10 +1,10 @@
-function Scene(view, gl, path) {
+function Scene(preview, gl, path) {
+    this.preview = preview;
+    this.gl = gl;
 	this.path = path;
     this.cfgTextures = true;
-    this.gl = gl;
-    this.window = view;
     this.root = null;
-    this.view = null;
+    this.view = {"org":[-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "target" : [0, 0, 0], "fov" : 52.2338};
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
     this.cfgDbl = true;
@@ -72,7 +72,7 @@ Scene.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
 }
 
 Scene.prototype.invalidate = function(flags) {
-    this.window.invalidate(flags);
+    this.preview.invalidate(flags);
 }
 
 Scene.prototype.getTexture = function(str, type) {
@@ -110,7 +110,6 @@ Scene.prototype.load = function(data) {
                 if (!this.root) this.root = new node3d();
                 this.root.load(s.root, this);
             }
-            if (s.view) this.view = s.view;
             if (s.lights) {
                 this.lights = s.lights;
                 for (i = 0; i < this.lights.length; i++) {
@@ -118,7 +117,6 @@ Scene.prototype.load = function(data) {
                     if (l.dir) vec3.normalize(l.dir);
                 }
             }
-            if (s.views) this.views = s.views;
 
             this.onDataLoaded();
         }
@@ -140,7 +138,6 @@ Scene.prototype.renderQueue = function(items) {
     };
 };
 Scene.prototype.updatePrjTM = function(tm) {
-    var w = this.window;
     var gl = this.gl;
     var v = [0, 0, 0];
     var bOk = false;
@@ -184,7 +181,7 @@ Scene.prototype.updatePrjTM = function(tm) {
         near = 0.1;
         far = 100;
     }
-    mat4.perspective(w.fov, gl.viewportWidth / gl.viewportHeight, near, far, this.projectionTM);
+    mat4.perspective(this.view.fov, gl.viewportWidth / gl.viewportHeight, near, far, this.projectionTM);
 };
 Scene.prototype.render = function(tm) {
     if (this.root) {

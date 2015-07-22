@@ -705,7 +705,7 @@ shader3d.prototype.activate = function(scene, mtl, tm, flags, newObj) {
                             gl.uniform3fv(s, a.light.dir);
                             break;
                         case 4113:
-                            gl.uniform3fv(s, scene.window.viewFrom);
+                            gl.uniform3fv(s, scene.preview.viewFrom);
                             break;
                         case 4114:
                             gl.uniformMatrix4fv(s, false, scene.modelviewTM);
