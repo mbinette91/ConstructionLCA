@@ -28,6 +28,60 @@ def GetUniqueProjectId():
 
 	return db['last_project_id']
 
+class ProductTreeBuilder:
+	IGNORED_CLASSES = ["Building", "BuildingStorey", "Space"]
+
+	def __init__(self):
+		self.data = []
+		self.last_class_name = None;
+		self.class_data = []
+		self.last_class_type = None;
+		self.class_type_data = [];
+		self.undefined_data = [];
+
+	def add_product_row(self, row):
+		class_name = row[2].replace("Ifc", "");
+		if class_name in ProductTreeBuilder.IGNORED_CLASSES:
+			return;
+		type = row[3];
+		product_data = [row[0], row[1]];
+		if class_name != self.last_class_name:
+			self.close_class();
+			self.last_class_name = class_name;
+
+		if not type:
+			self.undefined_data.append(product_data)
+		else:
+			if type != self.last_class_type:
+				self.close_class_type();
+				self.last_class_type = type;
+			self.class_type_data.append(product_data)
+
+	def close_class_type(self):
+		if len(self.class_type_data) != 0:
+			self.class_data.append([self.last_class_type, self.class_type_data]);
+			self.class_type_data = [];
+		self.last_class_type = None;
+
+	def close_undefined_type(self):
+		if len(self.undefined_data) != 0:
+			self.class_data.append(["Others", self.undefined_data]);
+			self.undefined_data = []
+
+	def close_class(self):
+		self.close_class_type();
+		self.close_undefined_type();
+		if len(self.class_data) != 0:
+			self.data.append([self.last_class_name, self.class_data]);
+			self.class_data = []
+		self.last_class_name = None;
+
+	def end(self):
+		self.close_class();
+
+	def get_tree(self):
+		return self.data;
+
 class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 	def do_GET(self):
 		url = urlparse.urlparse(self.path)
@@ -68,16 +122,17 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			conn = sqlite3.connect('../database.db3')
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('SELECT guid,name FROM products WHERE project_id=?', (query['id'][0],))
+			c.execute('SELECT p.guid, p.name, p.class_name, m.layer_name FROM products p LEFT JOIN materials m ON p.id=m.product_id WHERE project_id=? ORDER BY p.class_name, m.layer_name', (query['id'][0],))
 			
-			data = []
+			builder = ProductTreeBuilder();
 			for row in c.fetchall():
-				data.append([row[0], row[1]])
+				builder.add_product_row(row);
+			builder.end();
 
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")
 			self.end_headers()
-			self.wfile.write(json.dumps(data, encoding='latin1'))
+			self.wfile.write(json.dumps(builder.get_tree(), encoding='latin1'))
 			return;
 		elif query['get'][0] == 'info':
 			conn = sqlite3.connect('../database.db3')

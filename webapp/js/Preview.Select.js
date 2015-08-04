@@ -1,5 +1,44 @@
 PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
-    if(this.scene.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
+    var get_info = function (data){
+        var info = {};
+        info["name"] = data.name;
+        info["guid"] = data.guid;
+        info["type"] = data.className;
+        info["description"] = data.description;
+        var mat = data.material;
+        if(mat && mat.name){
+            info["material"] = mat.name + " (" + mat.thickness + ") - " + mat.layerName;
+        }
+        else{
+            info["material"] = "None";
+        }
+        return info;
+    }
+
+    var has_common_info = false;
+    var write_info = function(info, i) {
+        var local_has_common_info =  i == 0;
+        for(var info_name in info) {
+            var elem = $("#selected-element-info ." + info_name + " .info");
+            if(i == 0)
+                elem.html(info[info_name]);
+            else if(elem.html() == info[info_name]) {
+                if(info[info_name]) // If it's empty, there's nothing much to show...
+                    local_has_common_info = true;
+                elem.html(info[info_name]);
+            }
+            else 
+                elem.html("[various]");
+        }
+        has_common_info = has_common_info && local_has_common_info;
+    }
+
+    var clear_info = function() {
+        has_common_info = true;
+    }
+
+    clear_info();
+    /*if(this.scene.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
         var node = this.scene.selectedObjects[0];
         if(node.data) {
             $("#selected-element-info .name .info").html(node.data.name);
@@ -16,9 +55,19 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
             $("#selected-element-info").show();
         }
     }
-    else{
-        $("#selected-element-info").hide();
-    }
+    else{*/
+        //var has_common_info = false;
+
+        for(var i in this.scene.selectedObjects) {
+            var node = this.scene.selectedObjects[i];
+            write_info(get_info(node.data), i)
+        }
+
+        if(this.scene.selectedObjects.length == 0 || !has_common_info)
+            $("#selected-element-info").hide();
+        else
+            $("#selected-element-info").show();
+    //}
 }
 
 PreviewModule.prototype.getRay = function(x, y, ray) {
