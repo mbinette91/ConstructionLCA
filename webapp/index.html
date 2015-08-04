@@ -3,20 +3,53 @@
     <head>
         <title>Construction LCA</title>
         <link rel="stylesheet" href="/css/libs/bootstrap.min.css">
-        <link type="text/css" rel="stylesheet" href="/css/libs/layout-default.css">
-        <link type="text/css" rel="stylesheet" href="/css/libs/jstree/style.min.css" />
         <link type="text/css" rel="stylesheet" href="/css/main.css">
     </head>
-    <body>
-        <a href="/project?id=Test">Test project</a>
-        <form action="/project" method="POST" enctype="multipart/form-data">
-            Select IFC file to upload:
-            <input type="file" name="file" id="file">
-            <input type="submit" value="Upload IFC" name="submit">
-        </form>
+    <body id="index">
+        <header>
+            <div id="logo">
+                <div class="logo-container">
+                    <div class="logo-ifc">IFC</div>
+                    <div class="logo-viewer">viewer</div>
+                </div>
+            </div>
+        </header>
 
-        <div class="clear"></div>
+        <div id="content" class="panel panel-default">
+            <div class="panel-heading">Create a new project</div>
+
+            <div class="panel-body">
+                <form action="/project" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Upload your IFC File</label>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-primary btn-file">
+                                    Browse... <input type="file" name="file" id="file" REQUIRED>
+                                </span>
+                            </span>
+                            <input type="text" class="form-control" readonly="">
+                        </div>
+                        <span class="help-block">Make sure your IFC file is in a STEP format.</span>
+                    </div>
+                    <input type="submit" value="Create project" name="submit" class="btn btn-primary">
+                </form>
+            </div>
+        </div>
+
+        <footer>
+            PFE - Mathieu Binette, 2015
+        </footer>
 
         <script src="/js/libs/jquery-1.11.2.min.js"></script>
+        <script src="/js/utils.js"></script>
+        <script>
+            $(document).ready( function() {
+                $('form :file').on('fileselect', function(event, numFiles, label) {
+                    var input = $(this).parents('.input-group').find(':text');
+                    input.val(label);
+                });
+            });
+        </script>
     </body>
 </html>

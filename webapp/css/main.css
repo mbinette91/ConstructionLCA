@@ -55,7 +55,7 @@ nav#tabs .progress {
 }
 
 /*Bootstrap customization*/
-.btn {
+body#preview .btn {
     border-radius: 0;
 }
 
@@ -148,4 +148,64 @@ div#unityPlayer {
     position:absolute;
     top: 50px;
     right: 10px;
+}
+
+/*Index page*/
+body#index header #logo{
+    margin: 20px auto;
+    text-align: center;
+}
+
+body#index header #logo .logo-container{
+    position:relative;
+    display:inline-block;
+}
+
+body#index header #logo .logo-ifc{
+    font-size: 70px;
+    color: #000;
+    letter-spacing: -9px;
+    font-weight: 800;
+}
+
+body#index header #logo .logo-viewer{
+    font-family: Georgia;
+    position: absolute;
+    bottom: 8px;
+    right: 2px;
+    font-size: 25px;
+    color: #FFF;
+    text-shadow: -1px 0 rgba(0,0,0,0.5), 0 1px rgba(0,0,0,0.8), 1px 0 rgba(0,0,0,0.8), 0 -1px rgba(0,0,0,0.5);
+}
+
+body#index #content{
+    margin: 20px auto;
+    width: 800px;
+}
+
+body#index footer {
+    text-align: center;
+    font-style: italic;
+    margin: 20px;
+}
+
+/*File input CSS, source: http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/*/
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
 }
