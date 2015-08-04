@@ -1,7 +1,6 @@
 PreviewModule.InputHandler = function(preview) {
     this.preview = preview;
 
-    this.orbitMode = 1;
     this.cameraMode = 0;
     this.LX = 0;
     this.LY = 0;
@@ -48,6 +47,11 @@ PreviewModule.InputHandler.prototype.addEvent = function(canvas, event_name, fun
         canvas.attachEvent("on" + event_name, funct);
     else if (canvas.addEventListener) 
         canvas.addEventListener(event_name, funct);
+
+    var that = this;
+    window.addEventListener("keydown", function(event) {
+        return that.onKeyDown(event);
+    })
 }
 
 PreviewModule.InputHandler.prototype.decodeButtons = function(e) {
@@ -107,6 +111,28 @@ PreviewModule.InputHandler.prototype.getClientPoint = function(e) {
     }
 }
 
+PreviewModule.InputHandler.prototype.onKeyDown = function(event) {
+    var e = event;
+    var v = this.preview.scene.view;
+    var _u = v.up;
+    if (e.which == 40 || e.which == 38) { // Down || Up // TO-DO: Work in progress
+        var scale = 2.5;
+        if(e.which == 40)
+            scale = -scale;
+        var v = this.preview.scene.view;
+        var r0 = v.from;
+        var r1 = v.to;
+        var d = [r1[0] - r0[0], r1[1] - r0[1], r1[2] - r0[2]];
+        vec3.normalize(d);
+        vec3.scale(d, scale);
+        vec3.add_ip(v.from, d);
+        vec3.add_ip(v.up, d);
+        vec3.add_ip(v.to, d);
+        this.preventDefault();
+        this.preview.invalidate(IV.INV_VERSION);
+    }
+};
+
 PreviewModule.InputHandler.prototype.onMouseUp = function(event) {
     var e = event;
     var p = this.getClientPoint(e);
@@ -143,7 +169,7 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
             else
             if (this.cameraMode == 2) b = 4;
         }
-        if (b & 4) {
+        if (event.ctrlKey) {
             this.move(dX, dY);
             invF = IV.INV_VERSION;
         } else
@@ -176,11 +202,11 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
 // Scene Transformations
 PreviewModule.InputHandler.prototype.move = function(dX, dY) {
     var v = this.preview.scene.view;
-    var gl = this.gl;
+    var gl = this.preview.gl;
     var x0 = gl.viewportWidth / 2,
         y0 = gl.viewportHeight / 2;
-    var r0 = this.getRay(x0, y0);
-    var r1 = this.getRay(x0 - dX, y0 - dY);
+    var r0 = this.preview.getRay(x0, y0);
+    var r1 = this.preview.getRay(x0 - dX, y0 - dY);
     var d = [r1[3] - r0[3], r1[4] - r0[4], r1[5] - r0[5]];
     vec3.add_ip(v.from, d);
     vec3.add_ip(v.up, d);
@@ -190,13 +216,6 @@ PreviewModule.InputHandler.prototype.orbit = function(dX, dY) {
     var v = this.preview.scene.view,
         tm = [];
     var _u = v.getUpVector();
-    if (dX && this.orbitMode) {
-        mat4.identity(tm);
-        mat4.rotateAxisOrg(tm, v.to, _u, -dX / 200.0);
-        mat4.mulPoint(tm, v.from);
-        mat4.mulPoint(tm, v.up);
-        dX = 0;
-    }
     if (dY) {
         vec3.normalize(_u);
         var _d = v.getViewVectorN();

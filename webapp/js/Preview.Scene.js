@@ -6,7 +6,7 @@ function Scene(preview, gl, path) {
 
     this.cfgTextures = true;
     this.root = null;
-    this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2.1648, -1.98588, 2.02927], "to" : [0, 0, 0], "fov" : 52.2338});
+    this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2, -2, 2], "to" : [0, 0, 0], "fov" : 52.2338});
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
     this.cfgSelZOffset = false;
