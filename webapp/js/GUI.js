@@ -57,7 +57,7 @@ GUI.prototype.initialize = function(projectId) {
             },
             success: function(){
                 that.preview.initialize("tree.json", "/data/output-" + projectId + "/");
-                that.preview.setSize($("#section-container").width(), $("#section-container").height());
+                that.handleWindowSizeChanged();
                 that.getProjectInfo();
             }
         })
@@ -93,9 +93,9 @@ GUI.prototype.handleWindowSizeChanged = function() {
 
     setTimeout(function(){
         var w = $("#section-container").width();
-        var h = $("#section-container").height();
+        var h = $("body").height() - $("#tabs").height();
         that.preview.setSize(w, h);
-        that.stats.refreshGraph();
+        that.stats.setSize(w, h);
     }, 10); // Artificial timeout because the layout plugin needs to update itself.
 }
 

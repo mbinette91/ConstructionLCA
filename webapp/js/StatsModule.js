@@ -72,10 +72,8 @@ StatsModule.prototype.initializeD3JS = function(){
     });
 }
 
-StatsModule.prototype.refreshGraph = function(){
+StatsModule.prototype.setSize = function(width, height){
     var that = this;
-    var width = $("#section-container").width(),
-        height = $("#section-container").height();
 
     this.xRange.range([0, width]);
     this.yRange.range([0, height]);

@@ -10,8 +10,8 @@
     text-align: center;
 }
 
-#workspace #section-container {
-    height:100%;
+#workspace{
+    overflow: hidden;
 }
 
 #workspace .section {
