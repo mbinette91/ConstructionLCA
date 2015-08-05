@@ -159,7 +159,7 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			conn = sqlite3.connect('../database.db3')
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('SELECT ps.id, ps.name FROM products p LEFT JOIN property_set ps ON p.id=ps.product_id WHERE project_id=? AND p.guid=?', (query['id'][0],query['product_id'][0],))
+			c.execute('SELECT ps.id, ps.name FROM products p JOIN property_set ps ON p.id=ps.product_id WHERE project_id=? AND p.guid=?', (query['id'][0],query['product_id'][0],))
 			
 			data = []
 			for row in c.fetchall():
