@@ -69,12 +69,12 @@ PreviewModule.prototype.setSize = function(width, height) {
 };
 
 PreviewModule.prototype.setNodeInformation = function(data) {
-    var space = this.scene;
+    var scene = this.scene;
     for(var i in data) {
-        var obj = space.objects3d[data[i].guid];
+        var obj = scene.objects3d[data[i].guid];
         if(obj){
             obj.data = data[i];
-            obj.setMaterial(space, space.materials.search(data[i]));
+            obj.setMaterial(scene, scene.materials.search(data[i]));
         }
     }
 }
@@ -197,50 +197,30 @@ node3d.prototype.setObject = function(obj) {
         if (obj) obj.ref++;
     }
 }
-node3d.prototype.setMaterial = function(space, material) {
+node3d.prototype.setMaterial = function(scene, material) {
     this.material = material;
     if(this.object)
         this.object.bump = (material && material.bump);
-    space.invalidate();
+    scene.invalidate();
 }
-node3d.prototype.load = function(d, space) {
-    var i, j;
-    if (d.guid !== undefined) {
-        space.objects3d[d.guid] = this;
+node3d.prototype.load = function(data, scene) {
+    var i;
+    if (data.guid !== undefined) { // Leaf
+        scene.objects3d[data.guid] = this;
+        this.setMaterial(scene, scene.materials.search('default'));
     }
-    if (d.name !== undefined) this.name = d.name;
-    if (d.meta !== undefined) this.meta = d.meta;
-    if (d.camera !== undefined) this.camera = d.camera;
-
-    this.setMaterial(space, space.materials.search('default'));
-
-    if (d.s != undefined) this.state = d.s;
-    if (d.t != undefined) this.type = d.t;
-    if (d.tm) {
-        this.tm = mat4.create();
-        mat4.identity(this.tm);
-        var index = 0;
-        for (i = 0; i < 4; i++) {
-            for (j = 0; j < 3; j++) {
-                this.tm[i * 4 + j] = d.tm[index];
-                index++;
-            }
-        }
-    }
-    if (d.i) {
-        var n = d.i;
-        for (i = 0; i < n.length; i++) {
+    else // Not leaf
+        for (i = 0; i < data.length; i++) {
             var node = this.newNode();
-            node.load(n[i], space);
+            node.load(data[i], scene);
         }
-    }
 };
 
-function nodeRender(node, tm, space, state) {
+function nodeRender(node, tm, scene, state) {
     var o = node.object;
     if (o) {
-        if (state & 4 && space.cfgSelZOffset) state |= 0x20000;
-        if (o.boxMin) space.toRenderQueue(tm, node, state);
+        if (state & 4 && scene.cfgSelZOffset) state |= 0x20000;
+        if (o.boxMin) scene.toRenderQueue(tm, node, state);
     }
     return true;
 }

@@ -35,10 +35,18 @@ GUI.prototype.initialize = function(projectId) {
         }
     })
 
-    this.fsManager.initialize();
-    this.fsManager.addTriggerElement($("#fullscreen-trigger"));
+    try {
+        this.fsManager.initialize();
+        this.fsManager.addTriggerElement($("#fullscreen-trigger"));
+    } catch (err) {
+        console.log("Cannot initialize FullScreenManager");
+    }
 
-    this.stats.initialize();
+    try {
+        this.stats.initialize();
+    } catch (err) {
+        console.log("Cannot initialize StatsManager");
+    }
 
     var POOLING_INTERVAL = 1000; // Millis
     var that = this;

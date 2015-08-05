@@ -11,7 +11,11 @@ function Scene(preview, gl, path) {
     this.modelviewTM = mat4.create();
     this.cfgSelZOffset = false;
     this.textures = [];
-    this.lights = 0;
+    this.lights = [
+        {"color":[0.5,0.5,0.5], "dir":[-0.7844649251679332,-0.5883479438760214,-0.19611598129200716], "type": 1},
+        {"color":[0.8,0.8,0.9], "dir":[0.5907961528729553, 0.32493808408017716, -0.7384951910911942], "type": 1},
+        {"color":[0.9,0.9,0.9], "dir":[0.009999365059592464, 0.004999687529793762, 0.9999375059587523], "type": 1},
+        ];
     this.activeShader = null;
     this.pre = [];
     this.post = [];
@@ -69,10 +73,8 @@ Scene.prototype.updateShadeArgs = function(a) {
     var ca = (p) ? p.attrs.length : 0,
         na = a ? a.attrs.length : 0;
     if (na > ca) {
-        console.log("AAAdd"+na+" "+ca)
         for (i = ca; i < na; i++) gl.enableVertexAttribArray(i);
     } else if (na < ca) {
-        console.log("AAAdcccc"+na+" "+ca)
         for (i = na; i < ca; i++) gl.disableVertexAttribArray(i);
     }
 }
@@ -114,29 +116,20 @@ Scene.prototype.getTexture = function(str, type) {
 
 Scene.prototype.load = function(data) {
     if (data) {
-        if (data.space) {
-            var s = data.space,
-                m = s.meshes,
-                i, j;
-
-            if (m)
-                for (i = 0; i < m.length; i++) {
-                    meshSheet = this.meshSheets.add(m[i]);
-                }
-            if (s.root) {
-                if (!this.root) this.root = new node3d();
-                this.root.load(s.root, this);
+        var o = data.objects,
+            m = data.meshes,
+            i;
+        if (m) {
+            for (i = 0; i < m.length; i++) {
+                meshSheet = this.meshSheets.add(m[i]);
             }
-            if (s.lights) {
-                this.lights = s.lights;
-                for (i = 0; i < this.lights.length; i++) {
-                    var l = this.lights[i];
-                    if (l.dir) vec3.normalize(l.dir);
-                }
-            }
-
-            this.onDataLoaded();
         }
+        if (o) {
+            this.root = new node3d();
+            this.root.load(o, this);
+        }
+
+        this.onDataLoaded();
     }
 };
 Scene.prototype.renderQueue = function(items) {

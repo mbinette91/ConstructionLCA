@@ -38,36 +38,56 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
     }
 
     clear_info();
-    /*if(this.scene.selectedObjects.length == 1) { // Only show this box if there is exactly one element selected.
+
+    for(var i in this.scene.selectedObjects) {
+        var node = this.scene.selectedObjects[i];
+        if(node && node.data)
+            write_info(get_info(node.data), i)
+    }
+
+    if(this.scene.selectedObjects.length == 0 || !has_common_info)
+        $("#selected-element-info").hide();
+    else
+        $("#selected-element-info").show();
+
+    var show = false;
+    var $info = $("#selected-element-properties");
+    if(this.scene.selectedObjects.length == 1) {
+        // Only load this if a single element is selected
         var node = this.scene.selectedObjects[0];
-        if(node.data) {
-            $("#selected-element-info .name .info").html(node.data.name);
-            $("#selected-element-info .guid .info").html(node.data.guid);
-            $("#selected-element-info .type .info").html(node.data.className);
-            $("#selected-element-info .description .info").html(node.data.description);
-            var mat = node.data.material;
-            if(mat && mat.name){
-                $("#selected-element-info .material .info").html(mat.name + " (" + mat.thickness + ") - " + mat.layerName);
+        if(node.data && !node.data.properties_loaded) {
+            var that = this;
+            var product_id = node.data.guid;
+
+            $.ajax("/project/info?get=properties&id="+this.gui.projectId+"&product_id="+product_id, {
+                error: function(){
+                    console.log("Error while loading product (id=" + product_id + ") properties!");
+                },
+                success: function(data){
+                    node.data.property_sets = JSON.parse(data);
+                    node.data.properties_loaded = true;
+                    that.refreshSelectedObjectsInfo();
+                }
+            })
+        }
+
+        $info.html("");
+        for(var i in node.data.property_sets) {
+            show = true;
+            var ps = node.data.property_sets[i];
+            var html = '<div class="element-info-property-set"><strong>'+ps.name+': </strong>';
+            for(var j in ps.properties) {
+                var prop = ps.properties[j];
+                html += ('<div class="element-info-property">'+prop.name + ": " + prop.value+'</div>');
             }
-            else{
-                $("#selected-element-info .material .info").html("None");
-            }
-            $("#selected-element-info").show();
+            html += ('</div>');
+            $info.append(html);
         }
     }
-    else{*/
-        //var has_common_info = false;
-
-        for(var i in this.scene.selectedObjects) {
-            var node = this.scene.selectedObjects[i];
-            write_info(get_info(node.data), i)
-        }
-
-        if(this.scene.selectedObjects.length == 0 || !has_common_info)
-            $("#selected-element-info").hide();
-        else
-            $("#selected-element-info").show();
-    //}
+    if(!show)
+        $info.hide();
+    else
+        $info.show();
 }
 
 PreviewModule.prototype.getRay = function(x, y, ray) {

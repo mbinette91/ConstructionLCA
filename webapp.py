@@ -122,7 +122,7 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 			conn = sqlite3.connect('../database.db3')
 			conn.text_factory = str
 			c = conn.cursor()
-			c.execute('SELECT p.guid, p.name, p.class_name, m.layer_name FROM products p LEFT JOIN materials m ON p.id=m.product_id WHERE project_id=? ORDER BY p.class_name, m.layer_name', (query['id'][0],))
+			c.execute('SELECT p.guid, p.name, p.class_name, m.name FROM products p LEFT JOIN materials m ON p.id=m.product_id WHERE project_id=? ORDER BY p.class_name, m.name', (query['id'][0],))
 			
 			builder = ProductTreeBuilder();
 			for row in c.fetchall():
@@ -149,6 +149,33 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
 						'className': row[3], 
 						'material': {'name': row[4], 'thickness': row[5], 'layerName': row[6]}
 					})
+
+			self.send_response(200)
+			self.send_header("Content-type", "text/html")
+			self.end_headers()
+			self.wfile.write(json.dumps(data, encoding='latin1'))
+			return;
+		elif query['get'][0] == 'properties':
+			conn = sqlite3.connect('../database.db3')
+			conn.text_factory = str
+			c = conn.cursor()
+			c.execute('SELECT ps.id, ps.name FROM products p LEFT JOIN property_set ps ON p.id=ps.product_id WHERE project_id=? AND p.guid=?', (query['id'][0],query['product_id'][0],))
+			
+			data = []
+			for row in c.fetchall():
+				properties = []
+				c2 = conn.cursor()
+				c2.execute('SELECT p.name, p.value FROM property p WHERE property_set_id=?', (row[0],))
+				for prop_row in c2.fetchall():
+					properties.append({
+							'name': prop_row[0],
+							'value': prop_row[1]
+						})
+				data.append({
+						'name': row[1],
+						'properties': properties
+					})
+				c2.close();
 
 			self.send_response(200)
 			self.send_header("Content-type", "text/html")

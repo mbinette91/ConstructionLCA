@@ -116,7 +116,7 @@ PreviewModule.InputHandler.prototype.onKeyDown = function(event) {
     var v = this.preview.scene.view;
     var _u = v.up;
     if (e.which == 40 || e.which == 38) { // Down || Up // TO-DO: Work in progress
-        var scale = 2.5;
+        var scale = 0.5;
         if(e.which == 40)
             scale = -scale;
         var v = this.preview.scene.view;

@@ -138,7 +138,8 @@ div#unityPlayer {
     border: none;
 }
 
-#Preview #selected-element-info {
+#Preview #selected-element-info,
+#Preview #selected-element-properties {
     display: none;
     color: #fff;
     border-radius: 5px;
@@ -148,6 +149,15 @@ div#unityPlayer {
     position:absolute;
     top: 50px;
     right: 10px;
+}
+#Preview #selected-element-properties {
+    height: 200px;
+    overflow-y: scroll;
+    top: auto;
+    bottom: 10px;
+}
+#Preview #selected-element-properties .element-info-property-set .element-info-property {
+    margin-left: 10px;
 }
 
 /*Index page*/
