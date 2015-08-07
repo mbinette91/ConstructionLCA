@@ -1,3 +1,8 @@
+/*
+* Features:
+*   - Represents the whole WebGL scene. 
+*   - TO-DO: Compute the view depending on what is in objects3d!
+*/
 function Scene(preview, gl, path) {
     this.loaded = false;
     this.preview = preview;
@@ -47,43 +52,26 @@ Scene.View.prototype.compare = function(v) {
 Scene.prototype.onDataLoaded = function() {
     this.loaded = true;
     this.materials.initialize();
-}
+};
 
 Scene.prototype.onMeshLoaded = function(m) {
     this.invalidate();
 };
-Scene.prototype.updateShadeArgs = function(a) {
-    var gl = this.gl,
-        i;
-    var p = this.activeShader;
-    var ca = (p) ? p.attrs.length : 0,
-        na = a ? a.attrs.length : 0;
-    if (na > ca) {
-        for (i = ca; i < na; i++) gl.enableVertexAttribArray(i);
-    } else if (na < ca) {
-        for (i = na; i < ca; i++) gl.disableVertexAttribArray(i);
-    }
-}
-Scene.prototype.setActiveShader = function(m, s, tm, flags) {
-    if (s != this.activeShader) this.updateShadeArgs(s);
-    if (s) s.activate(this, m, tm, flags, s == this.activeShader);
-    else this.gl.useProgram(null);
-    this.activeShader = s;
-}
+
 Scene.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
     var shader = mat.shader;
     this.setActiveShader(mat, shader, tm, flags);
     return shader;
-}
+};
 
 Scene.prototype.invalidate = function() {
     this.preview.invalidate();
-}
+};
 
 Scene.prototype.remove = function(object) {
     delete this.objects3d[object.guid];
     object.release();
-}
+};
 
 Scene.prototype.load = function(data) {
     if (data) {
@@ -107,6 +95,31 @@ Scene.prototype.load = function(data) {
         this.onDataLoaded();
     }
 };
+
+/*
+* Everything below this comment was taken from various sources from the WWW (for rendering).
+* Sources: Various functions from the WWW.
+*/
+Scene.prototype.updateShadeArgs = function(a) {
+    var gl = this.gl,
+        i;
+    var p = this.activeShader;
+    var ca = (p) ? p.attrs.length : 0,
+        na = a ? a.attrs.length : 0;
+    if (na > ca) {
+        for (i = ca; i < na; i++) gl.enableVertexAttribArray(i);
+    } else if (na < ca) {
+        for (i = na; i < ca; i++) gl.disableVertexAttribArray(i);
+    }
+};
+
+Scene.prototype.setActiveShader = function(m, s, tm, flags) {
+    if (s != this.activeShader) this.updateShadeArgs(s);
+    if (s) s.activate(this, m, tm, flags, s == this.activeShader);
+    else this.gl.useProgram(null);
+    this.activeShader = s;
+};
+
 Scene.prototype.renderQueue = function(items) {
     var c = items.length;
     var a;
@@ -117,6 +130,7 @@ Scene.prototype.renderQueue = function(items) {
         b.mesh.render(this, b);
     };
 };
+
 Scene.prototype.updatePrjTM = function(tm) {
     var gl = this.gl;
     var v = [0, 0, 0];
@@ -163,9 +177,11 @@ Scene.prototype.updatePrjTM = function(tm) {
     }
     mat4.perspective(this.view.fov, gl.viewportWidth / gl.viewportHeight, near, far, this.projectionTM);
 };
+
 Scene.prototype.updateMVTM = function() {
     return mat4.lookAt(this.view.from, this.view.to, this.view.getUpVector(), this.mvMatrix);
-}
+};
+
 Scene.prototype.render = function() {
     var tm = this.updateMVTM();
     if (this.loaded) {
@@ -191,6 +207,7 @@ Scene.prototype.render = function() {
         }
     }
 };
+
 Scene.prototype.toRenderQueue = function(atm, node, state) {
     var mtl = node.material;
     if(!mtl)
