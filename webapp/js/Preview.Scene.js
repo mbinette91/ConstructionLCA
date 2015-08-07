@@ -1,10 +1,11 @@
 function Scene(preview, gl, path) {
+    this.loaded = false;
+
     this.preview = preview;
     this.gl = gl;
 	this.path = path;
     this.mvMatrix = mat4.create();
 
-    this.root = null;
     this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2, -2, 2], "to" : [0, 0, 0], "fov" : 52.2338});
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
@@ -45,6 +46,7 @@ Scene.View.prototype.compare = function(v) {
 }
 
 Scene.prototype.onDataLoaded = function() {
+    this.loaded = true;
     this.materials.initialize();
 }
 
@@ -79,19 +81,28 @@ Scene.prototype.invalidate = function() {
     this.preview.invalidate();
 }
 
+Scene.prototype.remove = function(object) {
+    delete this.objects3d[object.guid];
+    object.release();
+}
+
 Scene.prototype.load = function(data) {
     if (data) {
-        var o = data.objects,
-            m = data.meshes,
-            i;
-        if (m) {
-            for (i = 0; i < m.length; i++) {
-                meshSheet = this.meshSheets.add(m[i]);
+        var objects = data.objects,
+            meshes = data.meshes;
+
+        if (meshes) {
+            for (var i = 0; i < meshes.length; i++) {
+                meshSheet = this.meshSheets.add(meshes[i]);
             }
         }
-        if (o) {
-            this.root = new Object3D();
-            this.root.load(o, this);
+
+        if (objects) {
+            for(var i in objects) {
+                var o = new Object3D(objects[i].guid);
+                o.setMaterial(this, this.materials.search('default'));
+                this.objects3d[o.guid] = o;
+            }
         }
 
         this.onDataLoaded();
@@ -158,7 +169,7 @@ Scene.prototype.updateMVTM = function() {
 }
 Scene.prototype.render = function() {
     var tm = this.updateMVTM();
-    if (this.root) {
+    if (this.loaded) {
         if(!this.meshSheets.complete)
             this.meshSheets.loadAll(this);
 

@@ -70,7 +70,7 @@ PreviewModule.prototype.setNodeInformation = function(data) {
             var mat = scene.materials.search(data[i]);
             obj.setMaterial(scene, mat);
             if(mat.name == "invisible")
-                scene.root.remove(obj);
+                scene.remove(obj);
         }
     }
 }

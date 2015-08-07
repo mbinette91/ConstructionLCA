@@ -291,7 +291,7 @@ function hitInfo_getWindow() {
     return this.scene.window;
 }
 PreviewModule.prototype.hitTest = function(ray) {
-    if (this.scene.root) {
+    if (this.scene.loaded) {
         var hitInfo = {
             "scene": this.scene,
             "ray": ray,
@@ -301,7 +301,7 @@ PreviewModule.prototype.hitTest = function(ray) {
         var tm = mat4.create();
         mat4.identity(tm);
         hitInfo.itm = mat4.create();
-        
+
         for(var i in this.scene.objects3d)
             HitTestNode(this.scene.objects3d[i], tm,  hitInfo)
 
@@ -318,17 +318,8 @@ PreviewModule.prototype.hitTest = function(ray) {
     }
     return null;
 }
-Object3D.prototype.Select = function(n, s, k) {
-    var b = false;
-    if (n == this) {
-        b |= this.setState(s ? 4 : 0, 4);
-    } else
-    if (!k) b |= this.setState(0, 4);
-    var child = this.firstChild;
-    while (child) {
-        b |= child.Select(n, s, k);
-        child = child.next;
-    }
+Object3D.prototype.Select = function(s) {
+    var b = this.setState(s ? 4 : 0, 4);
     return b;
 }
 
@@ -338,7 +329,10 @@ Object3D.prototype.isSelected = function() {
 
 Scene.prototype.Select = function(n, s, k) {
     var changes = false;
-    if (this.root.Select(n, s, k)) {
+    if(!k)
+        for(var i in this.objects3d)
+            this.objects3d[i].setState(0, 4);
+    if (n.Select(s)) {
         if(!k)
             this.selectedObjects = []
         if(n && n.isSelected())
