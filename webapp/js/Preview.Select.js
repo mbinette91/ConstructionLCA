@@ -301,7 +301,10 @@ PreviewModule.prototype.hitTest = function(ray) {
         var tm = mat4.create();
         mat4.identity(tm);
         hitInfo.itm = mat4.create();
-        this.scene.root.traverse(tm, HitTestNode, hitInfo);
+        
+        for(var i in this.scene.objects3d)
+            HitTestNode(this.scene.objects3d[i], tm,  hitInfo)
+
         if (hitInfo.node) {
             var n = hitInfo.node;
             while (n) {
@@ -372,24 +375,5 @@ Scene.prototype.selectObject = function(guid, multiple) {
         var bSelect = true;
         if (multiple && node && node.state & 4) bSelect = false;
         this.Select(node, bSelect, multiple);
-        /* //Move camera - put in another function, if the guy wants to select multiple elemnts by clicking on them, 
-        //it should move the camera. single click in scene = select, double click = same as click on tree = select + move
-        if (node.camera) {
-            var c = node.camera;
-            var wtm = node.getWTM();
-            var d = {
-                org: c.from,
-                target: c.to,
-                up: c.up
-            };
-            if (wtm) {
-                mat4.mulPoint(wtm, d.org);
-                mat4.mulPoint(wtm, d.org);
-            }
-            if (c.fov) d.fov = c.fov;
-            else d.fov = view3d.fov;
-            view3d.setViewImp(d);
-        }
-        */
     }
 }

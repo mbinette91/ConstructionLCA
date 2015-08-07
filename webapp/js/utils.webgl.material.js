@@ -97,20 +97,6 @@ material3d.prototype.loadChannelImp = function(v, name) {
     var c = this.newChannel(name);
     if (v.color !== undefined) c.setColor(v.color);
     if (v.amount !== undefined) c.amount = v.amount;
-    if (v.texture !== undefined) {
-        var type = undefined;
-        if (("type" in v) && v.type == "cube") {
-            if (this.gl) type = this.gl.TEXTURE_CUBE_MAP;
-            else type = 0x8513;
-        }
-        if (v.tm) c.tm = this.cnvTtxMatrix(v.tm);
-        if (v.cmp) c.cmp = v.cmp;
-        if (v.filter) c.filter = v.filter;
-        if (v.blend) c.blend = v.blend;
-        if (v.wrapT) c.wrapT = v.wrapT;
-        if (v.wrapS) c.wrapS = v.wrapS;
-        this.newTexture(c, v.texture, type);
-    }
 }
 material3d.prototype.loadChannel = function(v, name) {
     var type = typeof v;
@@ -432,7 +418,6 @@ shader3d.prototype.update = function(mtl) {
             if (mtl.isChannel(mtl.specular)) bSpecular = true;
             bLights = bDiffuse || bSpecular;
         }
-        if (mtl.scene.cfgTextures) bReflection = this.c0(mtl.reflection);
     }
     if (this.flags & 2) {
         if (bDiffuse) bUV |= this.c0(mtl.diffuse);

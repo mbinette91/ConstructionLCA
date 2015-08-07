@@ -1,7 +1,6 @@
 PreviewModule.InputHandler = function(preview) {
     this.preview = preview;
 
-    this.cameraMode = 0;
     this.LX = 0;
     this.LY = 0;
 
@@ -111,28 +110,6 @@ PreviewModule.InputHandler.prototype.getClientPoint = function(e) {
     }
 }
 
-PreviewModule.InputHandler.prototype.onKeyDown = function(event) {
-    var e = event;
-    var v = this.preview.scene.view;
-    var _u = v.up;
-    if (e.which == 40 || e.which == 38) { // Down || Up // TO-DO: Work in progress
-        var scale = 0.5;
-        if(e.which == 40)
-            scale = -scale;
-        var v = this.preview.scene.view;
-        var r0 = v.from;
-        var r1 = v.to;
-        var d = [r1[0] - r0[0], r1[1] - r0[1], r1[2] - r0[2]];
-        vec3.normalize(d);
-        vec3.scale(d, scale);
-        vec3.add_ip(v.from, d);
-        vec3.add_ip(v.up, d);
-        vec3.add_ip(v.to, d);
-        this.preventDefault();
-        this.preview.invalidate();
-    }
-};
-
 PreviewModule.InputHandler.prototype.onMouseUp = function(event) {
     var e = event;
     var p = this.getClientPoint(e);
@@ -163,12 +140,6 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
         dY = p.y - this.LY;
     if (this.mouseCaptured && (Math.abs(dX) || Math.abs(dY))) {
         var b = p.b = this.decodeButtons(event);
-        var invF = 0;
-        if (this.cameraMode && b == 1) {
-            if (this.cameraMode == 1) b = 2;
-            else
-            if (this.cameraMode == 2) b = 4;
-        }
         if (event.ctrlKey) {
             this.move(dX, dY);
         } else
@@ -197,7 +168,7 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
     this.preventDefault(event);
 }
 
-// Scene Transformations
+// Basic Scene Transformations taken on the web
 PreviewModule.InputHandler.prototype.move = function(dX, dY) {
     var v = this.preview.scene.view;
     var gl = this.preview.gl;
@@ -244,3 +215,26 @@ PreviewModule.InputHandler.prototype.zoom = function(zoom) {
     vec3.add_ip(v.up, delta);
     return true;
 }
+
+// Author: Mathieu Binette
+PreviewModule.InputHandler.prototype.onKeyDown = function(event) {
+    var e = event;
+    var v = this.preview.scene.view;
+    var _u = v.up;
+    if (e.which == 40 || e.which == 38) { // Down || Up // TO-DO: Work in progress to get back to what it was with Unity...
+        var scale = 0.5;
+        if(e.which == 40)
+            scale = -scale;
+        var v = this.preview.scene.view;
+        var r0 = v.from;
+        var r1 = v.to;
+        var d = [r1[0] - r0[0], r1[1] - r0[1], r1[2] - r0[2]];
+        vec3.normalize(d);
+        vec3.scale(d, scale);
+        vec3.add_ip(v.from, d);
+        vec3.add_ip(v.up, d);
+        vec3.add_ip(v.to, d);
+        this.preventDefault();
+        this.preview.invalidate();
+    }
+};

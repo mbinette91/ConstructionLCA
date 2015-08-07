@@ -4,13 +4,10 @@ function Scene(preview, gl, path) {
 	this.path = path;
     this.mvMatrix = mat4.create();
 
-    this.cfgTextures = true;
     this.root = null;
     this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2, -2, 2], "to" : [0, 0, 0], "fov" : 52.2338});
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
-    this.cfgSelZOffset = false;
-    this.textures = [];
     this.lights = [
         {"color":[0.5,0.5,0.5], "dir":[-0.7844649251679332,-0.5883479438760214,-0.19611598129200716], "type": 1},
         {"color":[0.8,0.8,0.9], "dir":[0.5907961528729553, 0.32493808408017716, -0.7384951910911942], "type": 1},
@@ -20,7 +17,6 @@ function Scene(preview, gl, path) {
     this.pre = [];
     this.post = [];
     this.colorSelectedElement = [1, 0, 0];
-    this.rmode = 0;
     this.objects3d = {};
     this.meshSheets = new MeshSheets();
     this.materials = IFCMaterials.get(this);
@@ -82,26 +78,6 @@ Scene.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
 Scene.prototype.invalidate = function() {
     this.preview.invalidate();
 }
-
-Scene.prototype.getTexture = function(str, type) {
-    var t;
-    for (var i = 0; i < this.textures.length; i++) {
-        var t = this.textures[i];
-        if ((t.ivfile == str) && (t.ivtype == type)) {
-            t.ivrefcount++;
-            return t;
-        }
-    }
-    var gl = this.gl;
-    t = this.gl.createTexture();
-    t.ivspace = this;
-    t.ivready = false;
-    t.ivfile = str;
-    t.ivtype = type;
-    t.ivrefcount = 1;
-    this.textures.push(t);
-    return t;
-};
 
 Scene.prototype.load = function(data) {
     if (data) {
@@ -190,7 +166,8 @@ Scene.prototype.render = function() {
         gl.cullFace(gl.BACK);
         var tmw = mat4.create();
         mat4.identity(tmw);
-        this.root.traverse(tmw, nodeRender, this, this.rmode << 8);
+        for(var i in this.objects3d)
+            this.objects3d[i].render(tmw, this)
         mat4.copy(tm, this.modelviewTM);
         this.updatePrjTM(tm);
         this.renderQueue(this.pre);
@@ -202,7 +179,6 @@ Scene.prototype.render = function() {
             gl.disable(gl.BLEND);
             this.post = [];
         }
-        //this.setActiveShader(null, 0);
     }
 };
 Scene.prototype.toRenderQueue = function(atm, node, state) {
