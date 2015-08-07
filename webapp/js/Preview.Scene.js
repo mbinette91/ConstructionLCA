@@ -1,11 +1,9 @@
 function Scene(preview, gl, path) {
     this.loaded = false;
-
     this.preview = preview;
     this.gl = gl;
 	this.path = path;
     this.mvMatrix = mat4.create();
-
     this.view = new Scene.View({"from" : [-2.39854, -2.18169, 1.21867], "up" : [-2, -2, 2], "to" : [0, 0, 0], "fov" : 52.2338});
     this.projectionTM = mat4.create();
     this.modelviewTM = mat4.create();
@@ -22,6 +20,7 @@ function Scene(preview, gl, path) {
     this.meshSheets = new MeshSheets();
     this.materials = IFCMaterials.get(this);
     this.selectedObjects = [];
+
     if (gl) {
         this.e_ans = (gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('MOZ_EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'));
         if (this.e_ans) this.e_ansMax = gl.getParameter(this.e_ans.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
@@ -115,7 +114,7 @@ Scene.prototype.renderQueue = function(items) {
     for (var i = 0; i < c; i++) {
         var b = items[i];
         var d = false;
-        b.object.render(this, b);
+        b.mesh.render(this, b);
     };
 };
 Scene.prototype.updatePrjTM = function(tm) {
@@ -133,8 +132,8 @@ Scene.prototype.updatePrjTM = function(tm) {
         for (var iO = 0; iO < c; iO++) {
             var d = items[iO];
             tm = mat4.m(d.tm, this.modelviewTM, tm);
-            var _min = d.object.boxMin;
-            var _max = d.object.boxMax;
+            var _min = d.mesh.boxMin;
+            var _max = d.mesh.boxMax;
             for (var i = 0; i < 8; i++) {
                 v[0] = (i & 1) ? _max[0] : _min[0];
                 v[1] = (i & 2) ? _max[1] : _min[1];
@@ -198,7 +197,7 @@ Scene.prototype.toRenderQueue = function(atm, node, state) {
         return; // Don't render elements with no materials
     var item = {
         "tm": atm,
-        "object": node.object,
+        "mesh": node.mesh,
         "mtl": mtl,
         "state": (state | (node.state & (16 | 32 | 0x30000)))
     };

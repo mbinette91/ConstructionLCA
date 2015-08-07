@@ -109,7 +109,7 @@ Scene.prototype.Select = function(object, select, multiple) {
     if(!multiple)
         this.clearSelected();
 
-    if (object.Select(select)) {
+    if (object && object.Select(select)) {
         if(object.isSelected())
             this.selectedObjects.push(object);
         else{
@@ -278,8 +278,8 @@ Object3D.prototype.hitTest = function(tm, info) {
         if (i) i = 3;
         return [ray[i], ray[i + 1], ray[i + 2]];
     }
-    if (this.object) {
-        var obj = this.object;
+    if (this.mesh) {
+        var obj = this.mesh;
         if (obj.boxMin && obj.boxMax) {
             var itm = mat4.invert(info.itm, tm);
             var org = mat4.mulPoint(itm, GetRayPoint(info.ray, 0));

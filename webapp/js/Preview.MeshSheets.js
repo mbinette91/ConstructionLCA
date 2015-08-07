@@ -73,7 +73,7 @@ MeshSheets.prototype.loadMeshSheet = function(scene, sheet) {
                     var mesh = new mesh3d(scene.gl);
                     mesh.initialize(scene, data);
                     if(data.guid && scene.objects3d[data.guid]) // Link with the node3d object
-                        scene.objects3d[data.guid].setObject(mesh);
+                        scene.objects3d[data.guid].setMesh(mesh);
                     scene.onMeshLoaded(mesh);
                 }
                 that.remove(sheet);
