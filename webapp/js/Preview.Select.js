@@ -1,3 +1,9 @@
+/*
+* Author: Mathieu Binette
+* Features:
+*   - Handles element selection and selected element information.
+*/
+
 PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
     var get_info = function (data){
         var info = {};
@@ -90,6 +96,61 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
         $info.show();
 }
 
+Object3D.prototype.Select = function(s) {
+    var b = this.setState(s ? 4 : 0, 4);
+    return b;
+}
+
+Object3D.prototype.isSelected = function() {
+    return this.state & 4;
+}
+
+Scene.prototype.Select = function(n, s, k) {
+    var changes = false;
+    if(!k)
+        this.clearSelected();
+
+    if (n.Select(s)) {
+        if(n && n.isSelected())
+            this.selectedObjects.push(n);
+        else{
+          for(var i in this.selectedObjects) {
+              if(this.selectedObjects[i] == n) {
+                  this.selectedObjects.splice(i, 1);
+              }
+          }
+        }
+        this.invalidate();
+    }
+
+    if (n) {
+        if (s) this.m_select = n;
+    } 
+    else 
+        this.m_select = null;
+    
+    return false;
+}
+
+Scene.prototype.clearSelected = function() {
+    this.selectedObjects = []
+    for(var i in this.objects3d)
+        this.objects3d[i].setState(0, 4);
+}
+Scene.prototype.selectObject = function(guid, multiple) {
+    var node = this.objects3d[guid];
+
+    if (node) {
+        var bSelect = true;
+        if (multiple && node && node.isSelected()) bSelect = false;
+        this.Select(node, bSelect, multiple);
+    }
+}
+
+/*
+* Everything below this comment was taken from various sources from the WWW.
+* Sources: Various functions from the WWW.
+*/
 PreviewModule.prototype.getRay = function(x, y, ray) {
     var gl = this.gl,
         w = gl.viewportWidth,
@@ -317,57 +378,4 @@ PreviewModule.prototype.hitTest = function(ray) {
         }
     }
     return null;
-}
-Object3D.prototype.Select = function(s) {
-    var b = this.setState(s ? 4 : 0, 4);
-    return b;
-}
-
-Object3D.prototype.isSelected = function() {
-    return this.state & 4;
-}
-
-Scene.prototype.Select = function(n, s, k) {
-    var changes = false;
-    if(!k)
-        for(var i in this.objects3d)
-            this.objects3d[i].setState(0, 4);
-    if (n.Select(s)) {
-        if(!k)
-            this.selectedObjects = []
-        if(n && n.isSelected())
-            this.selectedObjects.push(n);
-        else{
-          for(var i in this.selectedObjects) {
-              if(this.selectedObjects[i] == n) {
-                  this.selectedObjects.splice(i, 1);
-              }
-          }
-        }
-        this.invalidate();
-        changes = true;
-    }
-    changes |= this.m_select != n;
-    if (n) {
-        if (s) this.m_select = n;
-    } else this.m_select = null;
-    if (changes) {
-        var w = this.window;
-        if (w && w.onSelectionChanged) w.onSelectionChanged(n);
-    }
-    return false;
-}
-
-/*Click on tree*/
-Scene.prototype.clearSelected = function() {
-    this.Select(null, false, false);
-}
-Scene.prototype.selectObject = function(guid, multiple) {
-    var node = this.objects3d[guid];
-
-    if (node) {
-        var bSelect = true;
-        if (multiple && node && node.state & 4) bSelect = false;
-        this.Select(node, bSelect, multiple);
-    }
 }

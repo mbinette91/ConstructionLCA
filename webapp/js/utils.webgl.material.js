@@ -1,3 +1,7 @@
+/*
+* Contains utils classes for WebGL (channels, shaders)
+* Sources: Various functions from the WWW.
+*/
 
 function channel3d() {
     this.mode = 0;
