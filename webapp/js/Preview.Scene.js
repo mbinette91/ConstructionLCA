@@ -25,17 +25,6 @@ function Scene(preview, gl, path) {
     this.meshSheets = new MeshSheets();
     this.materials = IFCMaterials.get(this);
     this.selectedObjects = [];
-    this.rmodes = [{
-        "f": true,
-        "n": true,
-        "e": false,
-        "mtl": null
-    }, {
-        "f": false,
-        "n": false,
-        "e": true,
-        "mtl": null
-    }, ];
     if (gl) {
         this.e_ans = (gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('MOZ_EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic'));
         if (this.e_ans) this.e_ansMax = gl.getParameter(this.e_ans.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
@@ -220,8 +209,6 @@ Scene.prototype.toRenderQueue = function(atm, node, state) {
     var mtl = node.material;
     if(!mtl)
         return; // Don't render elements with no materials
-    var rmode = this.rmodes[(state & 0xff00) >> 8];
-    if (rmode.mtl) mtl = rmode.mtl;
     var item = {
         "tm": atm,
         "object": node.object,

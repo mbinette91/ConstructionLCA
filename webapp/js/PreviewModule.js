@@ -84,7 +84,7 @@ PreviewModule.prototype.drawScene = function() {
     this._drawScene_Timeout = null;
 }
 
-PreviewModule.prototype.invalidate = function() {
+PreviewModule.prototype.invalidate = function(f) {
     if (this._drawScene_Timeout) 
         return;
     

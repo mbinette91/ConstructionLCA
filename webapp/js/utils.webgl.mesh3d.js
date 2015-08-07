@@ -132,25 +132,15 @@ mesh3d.prototype.render = function(space, info) {
         var state = info.state;
         var gl = space.gl;
         var oz = 8;
-        var rmode = space.rmodes[(state & 0xff00) >> 8];
-        var bEdges = rmode.e;
-        if (bEdges) this.updateEdges(gl);
-        else {
-            if (this.nBuffer) oz |= 1;
-            if (this.uvBuffer) oz |= 2;
-            if (this.cBuffer) oz |= 4;
-            if (this.bnBuffer) oz |= 16;
-            if (state & 4) oz |= 256; // Selected element
-        }
+        if (this.nBuffer) oz |= 1;
+        if (this.uvBuffer) oz |= 2;
+        if (this.cBuffer) oz |= 4;
+        if (this.bnBuffer) oz |= 16;
+        if (state & 4) oz |= 256; // Selected element
         this.c1(space, info, oz);
-        if (bEdges) {
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.eBuffer);
-            gl.drawElements(gl.LINES, this.eBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-        } else {
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, fb);
-            var o = fb.offset;
-            gl.drawElements(this.lineMode ? gl.LINES : gl.TRIANGLES, fb.numItems, gl.UNSIGNED_SHORT, o ? o : 0);
-        }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, fb);
+        var o = fb.offset;
+        gl.drawElements(this.lineMode ? gl.LINES : gl.TRIANGLES, fb.numItems, gl.UNSIGNED_SHORT, o ? o : 0);
     }
 }
 

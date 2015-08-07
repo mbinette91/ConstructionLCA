@@ -171,11 +171,9 @@ PreviewModule.InputHandler.prototype.onMouseMove = function(event) {
         }
         if (event.ctrlKey) {
             this.move(dX, dY);
-            invF = IV.INV_VERSION;
         } else
         if (b & 1) {
             this.orbit(dX, dY);
-            invF = IV.INV_VERSION;
         }
         this.preview.invalidate();
         this.LX = p.x;
