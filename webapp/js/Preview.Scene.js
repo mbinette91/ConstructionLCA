@@ -19,7 +19,7 @@ function Scene(preview, gl, path) {
     this.activeShader = null;
     this.pre = [];
     this.post = [];
-    this.clrSelection = [1, 0, 0];
+    this.colorSelectedElement = [1, 0, 0];
     this.rmode = 0;
     this.objects3d = {};
     this.meshSheets = new MeshSheets();

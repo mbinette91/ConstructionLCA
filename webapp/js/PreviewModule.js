@@ -3,14 +3,6 @@
 * Supported on most browsers.
 */
 
-var IV = {
-    INV_MTLS: 2,
-    INV_VERSION: 4,
-    R_SELECTION: 4,
-    R_Z_NOWRITE: 16,
-    R_Z_OFFSET: 0x30000,
-};
-
 function PreviewModule(canvas) {
     this.scene = null; // You must call PreviewModule::loadScene!
     this.canvas = canvas;

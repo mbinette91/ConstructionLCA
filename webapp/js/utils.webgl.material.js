@@ -673,7 +673,7 @@ shader3d.prototype.activate = function(scene, mtl, tm, flags, newObj) {
             case 4102:
                 {
                     var c = c = a.channel.color;
-                    if (flags & 256) c = vec3.lerp_r(c, scene.clrSelection, 0.5);
+                    if (flags & 256) c = vec3.lerp_r(c, scene.colorSelectedElement, 0.5);
                     gl.uniform3fv(s, c);
                 }
                 break;
