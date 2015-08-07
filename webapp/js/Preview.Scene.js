@@ -125,7 +125,7 @@ Scene.prototype.load = function(data) {
             }
         }
         if (o) {
-            this.root = new node3d();
+            this.root = new Object3D();
             this.root.load(o, this);
         }
 

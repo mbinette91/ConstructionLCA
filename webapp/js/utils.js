@@ -19,7 +19,7 @@ $.fn.equals = function(compareTo) {
   return true;
 };
 
-/*File input JS, source: http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/*/
+/* File input JS, source: http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/ */
 $(document).on('change', '.btn-file :file', function() {
   var input = $(this),
     numFiles = input.get(0).files ? input.get(0).files.length : 1,

@@ -218,7 +218,7 @@ function HitTestNode(node, tm, info) {
     if (node.state & 64) return 0;
     return node.hitTest(tm, info);
 }
-node3d.prototype.hitTest = function(tm, info) {
+Object3D.prototype.hitTest = function(tm, info) {
     function GetRayPoint(ray, i) {
         if (i) i = 3;
         return [ray[i], ray[i + 1], ray[i + 2]];
@@ -315,7 +315,7 @@ PreviewModule.prototype.hitTest = function(ray) {
     }
     return null;
 }
-node3d.prototype.Select = function(n, s, k) {
+Object3D.prototype.Select = function(n, s, k) {
     var b = false;
     if (n == this) {
         b |= this.setState(s ? 4 : 0, 4);
@@ -329,7 +329,7 @@ node3d.prototype.Select = function(n, s, k) {
     return b;
 }
 
-node3d.prototype.isSelected = function() {
+Object3D.prototype.isSelected = function() {
     return this.state & 4;
 }
 

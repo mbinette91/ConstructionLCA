@@ -1,3 +1,8 @@
+/*
+* Contains utils classes for WebGL (mesh3d)
+* Sources: Various functions from the WWW.
+* Added my own `computeVertexNormals` function, to compute the mesh's normals (for lighting).
+*/
 
 function mesh3d(gl) {
     this.gl = gl;
@@ -11,7 +16,7 @@ mesh3d.prototype.setBuffer = function(n, b) {
     var _b = this[n];
     if (_b) {
         _b.ref--;
-        if (_b.ref < 1) this.gl.deleteBufffer - fer(_b);
+        if (_b.ref < 1) this.gl.deleteBuffer(_b);
     }
     this[n] = b;
     if (b) {
@@ -214,6 +219,24 @@ mesh3d.prototype.initialize = function(space, data) {
     this.faces = f;
     this.points = v;
 };
+
+function ivBufferF(gl, v, cmp) {
+    var b = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, b);
+    gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
+    b.itemSize = cmp;
+    b.numItems = v.length / cmp;
+    return b;
+};
+
+function ivBufferI(gl, v) {
+    var b = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, v, gl.STATIC_DRAW);
+    b.itemSize = 1;
+    b.numItems = v.length;
+    return b;
+}
 
 // Author: Mathieu Binette
 mesh3d.prototype.computeVertexNormals = function(space, data){
