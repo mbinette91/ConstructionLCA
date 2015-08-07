@@ -96,8 +96,8 @@ PreviewModule.prototype.refreshSelectedObjectsInfo = function(f) {
         $info.show();
 }
 
-Object3D.prototype.Select = function(s) {
-    var b = this.setState(s ? 4 : 0, 4);
+Object3D.prototype.Select = function(select) {
+    var b = this.setState(select? 4 : 0, 4);
     return b;
 }
 
@@ -105,30 +105,23 @@ Object3D.prototype.isSelected = function() {
     return this.state & 4;
 }
 
-Scene.prototype.Select = function(n, s, k) {
-    var changes = false;
-    if(!k)
+Scene.prototype.Select = function(object, select, multiple) {
+    if(!multiple)
         this.clearSelected();
 
-    if (n.Select(s)) {
-        if(n && n.isSelected())
-            this.selectedObjects.push(n);
+    if (object.Select(select)) {
+        if(object.isSelected())
+            this.selectedObjects.push(object);
         else{
-          for(var i in this.selectedObjects) {
-              if(this.selectedObjects[i] == n) {
-                  this.selectedObjects.splice(i, 1);
-              }
-          }
+            for(var i in this.selectedObjects) {
+                if(this.selectedObjects[i] == object) {
+                    this.selectedObjects.splice(i, 1);
+                }
+            }
         }
         this.invalidate();
     }
 
-    if (n) {
-        if (s) this.m_select = n;
-    } 
-    else 
-        this.m_select = null;
-    
     return false;
 }
 
@@ -137,6 +130,7 @@ Scene.prototype.clearSelected = function() {
     for(var i in this.objects3d)
         this.objects3d[i].setState(0, 4);
 }
+
 Scene.prototype.selectObject = function(guid, multiple) {
     var node = this.objects3d[guid];
 
