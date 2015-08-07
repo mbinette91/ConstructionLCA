@@ -413,7 +413,6 @@ shader3d.prototype.update = function(mtl) {
     var vt = [];
     var ft = [];
     if (this.flags & 8) vt.push("uniform mat4 tmWorld;uniform mat4 tmModelView;uniform mat4 tmPrj;");
-    if (this.flags & IV.R_Z_OFFSET) vt.push("uniform float zOffset;");
     var bN = (this.flags & 1) != 0,
         bSpecular = false,
         bDiffuse = false,
@@ -454,10 +453,6 @@ shader3d.prototype.update = function(mtl) {
         this.addVar("tmModelView", 4114);
         this.addVar("tmPrj", 4115);
     } else vt.push("gl_Position=vec4(inV,1.0);");
-    if (this.flags & IV.R_Z_OFFSET) {
-        this.addVar("zOffset", 4105);
-        vt.push("gl_Position.z+=zOffset;");
-    }
     if (bN) {
         vt.push("\r\n wNormal=");
         if (mtl.backSide) vt.push("-");
@@ -661,7 +656,6 @@ shader3d.prototype.activate = function(scene, mtl, tm, flags, newObj) {
                 gl.activeTexture(gl.TEXTURE0 + t.slot);
                 var type = t.txt.ivtype;
                 gl.bindTexture(type, t.txt);
-                if (type == gl.TEXTURE_2D && scene.e_ans && (t.txt.filter == IV.FILTER_MIPMAP)) gl.texParameterf(type, scene.e_ans.TEXTURE_MAX_ANISOTROPY_EXT, scene.e_ansMax);
                 gl.texParameteri(type, gl.TEXTURE_WRAP_S, t.wrapS);
                 gl.texParameteri(type, gl.TEXTURE_WRAP_T, t.wrapT);
                 gl.uniform1i(t.uniform, t.slot);

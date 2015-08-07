@@ -129,7 +129,7 @@ PreviewModule.InputHandler.prototype.onKeyDown = function(event) {
         vec3.add_ip(v.up, d);
         vec3.add_ip(v.to, d);
         this.preventDefault();
-        this.preview.invalidate(IV.INV_VERSION);
+        this.preview.invalidate();
     }
 };
 
@@ -195,7 +195,7 @@ PreviewModule.InputHandler.prototype.onMouseWheel = function(event) {
         d *= 4;
     }
     this.zoom(d);
-    this.preview.invalidate(IV.INV_VERSION);
+    this.preview.invalidate();
     this.preventDefault(event);
 }
 

@@ -90,8 +90,8 @@ Scene.prototype.setActiveMaterialAndGetShader = function(mat, tm, flags) {
     return shader;
 }
 
-Scene.prototype.invalidate = function(flags) {
-    this.preview.invalidate(flags);
+Scene.prototype.invalidate = function() {
+    this.preview.invalidate();
 }
 
 Scene.prototype.getTexture = function(str, type) {

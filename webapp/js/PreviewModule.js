@@ -92,13 +92,7 @@ PreviewModule.prototype.drawScene = function() {
     this._drawScene_Timeout = null;
 }
 
-PreviewModule.prototype.invalidate = function(f) {
-    if (f !== undefined) {
-        if (f & IV.INV_MTLS && this.scene.materials) {
-            var _i = this.scene.materials;
-            for (var i = 0; i < _i.length; i++) _i[i].invalidate();
-        }
-    }
+PreviewModule.prototype.invalidate = function() {
     if (this._drawScene_Timeout) 
         return;
     
